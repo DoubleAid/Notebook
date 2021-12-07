@@ -11,4 +11,5 @@
     + [CMakeLists.txt教程](./项目总结/CMakeLists.txt教程.md)
 + 其他问题
     + [markdown的常见格式.md](./其他问题/markdown的常见格式.md)
+    + [python3和python2之间的切换](./其他问题/python3和python2之间的切换.md)
 
