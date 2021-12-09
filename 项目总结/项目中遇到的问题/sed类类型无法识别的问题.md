@@ -12,9 +12,7 @@ the right options for linking with it after all.
 sed4.3版本以前的空格键：[:space:]
 sed4.3版本以后的空格键：[[:space:]]
 
-解决方案：
-+ https://github.com/deu/palemoon-overlay/issues/31.
-+ https://superuser.com/questions/112834/how-to-match-whitespace-in-sed
-+ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=850984
-+ https://github.com/MoonchildProductions/Pale-Moon/issues/872
-+ https://bug1329272.bmoattachments.org/attachment.cgi?id=8825307
+### 解决方案：
+安装 sed4.2
+下载地址： https://ftp.gnu.org/gnu/sed/
+具体安装过程参考 安装包内的 readme
