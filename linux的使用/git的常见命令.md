@@ -6,3 +6,10 @@
 sudo -i
 apt-get install git
 ```
+
+### 下载分支
+```
+git clone -b v5/map-pipeline git@gitlab.allride-ai.cn:common/common.git
+```
+
+### data processor过程
