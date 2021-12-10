@@ -29,3 +29,5 @@ readonly url
 # 删除变量
 unset url
 ```
+
+参考链接：http://c.biancheng.net/cpp/view/7005.html
