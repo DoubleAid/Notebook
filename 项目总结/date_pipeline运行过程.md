@@ -1,4 +1,10 @@
-# 过程
+## 目录
+- [附加内容](#附加内容)
+    - [basemap的proto原型](#basemap的proto原型)
+    - [HDMapTile的proto原型](#hdmaptile的proto原型)
+    - [ConfigHDMap的proto原型](#confighdmap的proto原型)
+
+## 过程
 ### 下载相应的 base_map.pb.txt
 下载地址： oss://allride-map/data/basemap/suzhou/0.0.122/
 
@@ -8,7 +14,7 @@ v5/map-pipeline 不支持 ubuntu 18 melodic 版本
 
 ### 第一步
 读取 cfg 文件，生成 HDMap_Processor_Configure 配置类 执行 过程 503
-
+cfg 文件为 base_map_to_file.cfg
 生成的 config 类，包括 
 ```
 type()
@@ -16,6 +22,7 @@ input().file().path()
 output().file().path()
 extra_cfg_path()
 ```
+extra_cfg 文件为 map/processor/extra/base_map_scope.cfg
 
 在 "tile_processor.cpp" 中，根据 config 中的type() 为 ConfigHDMap_Processor_Type_BASE_MAP_LOADER
 加载 BaseMapLoader
@@ -101,13 +108,31 @@ class RoadMapProcessor {
 
 processorJob中读取了相应的二进制文件，做了 processTile 处理，processTile就是对每一种类别进行resample处理
 
-
-
-
-
 最后将处理结果进行了保存
 
-
+### 第三步 road map lane topology sample 地图道路拓扑采样
+新建了 /opt/allride/data/map/road_map_lane_topology_processed 文件夹
+读取配置文件 map/conf/processor/data_pipeline/lane_topology.cfg
+configure文件格式
+```
+type: ROAD_MAP_LANE_TOPOLOGY
+input {
+  file {
+    path: "/opt/allride/data/map/road_map_geometry_resampled"
+  }
+  cache {
+    radius: 9
+    size: 10000
+  }
+}
+output {
+  file {
+    path: "/opt/allride/data/map/road_map_lane_topology_processed"
+  }
+}
+use_multi_thread: true
+multi_thread_num: 4
+```
 
 
 
@@ -194,3 +219,119 @@ message HDMapTile {
 }
 ```
 
+### ConfigHDMap的proto原型
+```proto
+message ConfigHDMap {
+  message Client {
+    message DB {
+      bytes host = 1;
+      int32 port = 2;
+      bytes db = 3;
+      bytes table = 4;
+      int64 version = 5; // epoch
+    }
+
+    message File {
+      bytes path = 1;
+    }
+
+    oneof client_type {
+      DB db = 1;
+      File file = 2;
+    }
+
+    message Cache {
+      int32 radius = 1; // in tile
+      int32 size = 2;
+    }
+
+    Cache cache = 3;
+  }
+
+  message RoadMap {
+    Client client = 1; // if set, will fully replace upper level client config
+  }
+
+  message EnvironmentMap {
+    Client client = 1; // if set, will fully replace upper level client config
+  }
+
+  message RasterMap {
+    Client client = 1; // if set, will fully replace upper level client config
+  }
+
+  message Router {
+    Client client = 1; // if set, will fully replace upper level client config
+    message Cost {
+      double change_lane_cost = 1;
+      double left_turn_cost = 2;
+      double right_turn_cost = 3;
+      double u_turn_cost = 4;
+      double min_turn_radius = 5;
+    }
+    Cost cost = 2;
+  }
+
+  ConfigHDMapClient client = 1 [deprecated = true];
+  ConfigROIMap roi = 2 [deprecated = true];
+
+  RoadMap road_map = 3;
+  EnvironmentMap environment_map = 4;
+  RasterMap raster_map = 5;
+  Router router = 6;
+  RoadMap road_map_smoothed = 7;
+  // Client client = 7; // default client config
+
+  message Processor {
+    enum Type {
+      TYPE_UNKNOWN = 0;
+
+      // Data pipeline jobs
+      ROAD_MAP_GEOMETRY_RESAMPLE = 100;
+      ROAD_MAP_LANE_TOPOLOGY = 101;readSafeStorage<GeoTileId, T03;
+      ROAD_MAP_OTHER_GROUND_SAMPLE = 104;
+      ROAD_MAP_HEIGHT = 105;
+      ROAD_MAP_LANE_OVERLAP = 106;
+      ROAD_MAP_CONNECTION_TOPOLOGY = 107;
+      ROAD_MAP_LANE_WIDTH = 108;
+      ROAD_MAP_RELATION = 109;
+      ROAD_MAP_CLEAN_UP = 110;
+      ROAD_MAP_REFLINE = 111;
+      ROAD_MAP_ROI = 112;
+      ENVIRONMENT_MAP_EDGE = 113;
+      BASE_MAP_LANE_SPLIT = 114;
+
+      // Data release
+      HDMAP_TILE_RELEASER = 200;
+      HDMAP_TILE_UPDATER = 201;
+      RENDER_MAP_TILE_RELEASER = 202;
+
+      // Validations
+      ROAD_MAP_COMPARATOR = 300;
+      ENVIRONMENT_MAP_COMPARATOR = 301;
+      BASE_MAP_VALIDATOR = 302;
+      HDMAP_VALIDATOR_2D = 303;
+      HDMAP_VALIDATOR_3D = 304;
+
+      // Conversion utils
+      HDMAP_TILE_LOADER = 500;
+      RAW_FILE_LOADER = 501;
+      RAW_FILE_EXTRACTOR = 502;
+      BASE_MAP_LOADER = 503;
+      BASE_MAP_EXTRACTOR = 504;
+      GROUND_SAMPLE_EXTRACTOR = 505;
+    }
+    Type type = 1;
+    Client input = 2;
+    Client output = 3;
+    bytes extra_cfg_path = 4;
+    bytes error_file_path = 5;
+    bool use_multi_thread = 6;
+    int32 multi_thread_num = 7;
+  }
+
+  message Processors {
+    repeated Processor processors = 1;
+  }
+}
+```readSafeStorage<GeoTileId, T
