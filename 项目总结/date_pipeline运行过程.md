@@ -5,8 +5,12 @@
     - [ConfigHDMap的proto原型](#confighdmap的proto原型)
 
 ## 过程
-### 下载相应的 base_map.pb.txt
-下载地址： oss://allride-map/data/basemap/suzhou/0.0.122/
+### 下载相应的 base_map.pb.txt, ground_samples.pb.txt, routing_pairs.pb.txt
+参考文档：src/map/processor/README.md
+下载地址： 
+  + oss://allride-map/data/basemap/suzhou/0.0.122/
+  + oss://allride-map/data/waypoint
+  + oss://allride-map/data/routing_pairs
 
 ### 下载 v5/map-pipeline 分支
 v5/map-pipeline 不支持 ubuntu 18 melodic 版本
