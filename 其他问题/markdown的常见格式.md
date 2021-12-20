@@ -9,3 +9,5 @@
 | ---- | ---- |
 | coral | <table><tr><td bgcolor=coral></td></tr></table> |
 | crimson | <table><tr><td bgcolor=crimson></td></tr></table> |
+| deepskyblue | <table><tr><td bgcolor=deepskyblue></td></tr></table> |
+| skyblue | <table><tr><td bgcolor=skyblue></td></tr></table> |
