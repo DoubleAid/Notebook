@@ -51,3 +51,8 @@
     + [data_pipeline运行过程](./项目总结/date_pipeline运行过程.md)
 + 机器学习
     + []
+
+
+参考文档（代阅读）
++ 传感器融合：激光雷达+摄像头： https://zhuanlan.zhihu.com/p/417375291
++ 
