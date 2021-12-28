@@ -17,9 +17,7 @@
     压缩： tar zcvf filename.tar.gz dir_name
     ```
 
-4. .bx2
-    ```
-    解压1：bzip2 -d FileName.bz2
+4. .bx2workleName.bz2
     解压2：bunzip2 FileName.bz2
     压缩： bzip2 -z FileName
     ```

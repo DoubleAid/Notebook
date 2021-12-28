@@ -10,6 +10,18 @@ catkin_create_pkg <package_name> [depend1] [depend2] [depend3]
 cd catkin_ws/src
 catkin_create_pkg beginner_tutorials std_msgs rospy roscpp
 ```
+### ROS工程搭建
++ 先新建文件夹 假设 工程名称为 catkin_ws, `mkdir -r catkin_ws/src`
++ 进入 catkin_ws ,建立工程
+    ```
+    cd catkin_ws
+    catkin_make
+    ```
++ 创建package
+    ```shell
+    # std_msgs、rospy、roscpp 为 package的依赖
+    catkin_create_pkg beginner_tutorials std_msgs rospy roscpp
+    ```
 
 ### Nodes
 Node是 ROS系统内最小的一个单位，一个package包含有许多的node用来执行不同的功能
