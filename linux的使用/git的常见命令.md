@@ -9,7 +9,7 @@ apt-get install git
 
 ### 下载分支
 ```
-git clone -b v5/map-pipeline git@gitlab.allride-ai.cn:common/common.git
+git clone -b v5/map-pipeline git@****/common.git
 ```
 
 ### data processor过程
