@@ -1,9 +1,9 @@
 + Linux相关
-  + python3和ython2之间的切换
+  + [python3和ython2之间的切换](Linux相关/python3和python2之间的切换.md)
 + Python画图相关
-  + matplotlib相关命令
-  + pandas数据结合的使用
-  + seaborn画图的使用
+  + [matplotlib相关命令](Python画图相关/matplotlib相关命令.md)
+  + [pandas数据结合的使用](Python画图相关/pandas数据结构的使用.md)
+  + [seaborn画图的使用](Python画图相关/seaborn画图的使用.md)
 + ROS相关
   + [ROS和rospy](ROS相关/1_ROS和rospy.md)
   + [rosnode的常用指令](ROS相关/2_rosnode的常用指令.md)
