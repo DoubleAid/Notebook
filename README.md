@@ -1,35 +1,31 @@
 # Notebook
+主要是记录一下工作日常遇到的各种问题，学习的各种感悟  
+- [Notebook](#notebook)
+  - [最近的计划](#最近的计划)
+  - [快速索引](#快速索引)
 
-一级链接
+## 最近的计划
+1. 添加 leetcode 刷题的内容，每天坚持更新
 
-+ linux的使用  
-    + shell
-        + [1-shell介绍](./linux的使用/shell/1-shell介绍.md)
-        + [2-shell的特殊变量](./linux的使用/shell/2-shell的特殊变量.md)
-        + [3-set的用法](./linux的使用/shell/3-set的用法.md)
-        + [4-shell变量替换](./linux的使用/shell/4-shell变量替换.md)
-        + [5-shell运算符](./linux的使用/shell/5-shell运算符.md)
-        + [6-if else语句](./linux的使用/shell/6-if%20else语句.md)
+## 快速索引
++ [linux的使用](linux的使用/readme.md)  
+    + shell脚本语法
     + [git的常见命令](./linux的使用/git的常见命令.md)  
     + [linux的常用命令.md](./linux的使用/linux的常用命令.md)
     + [ssh的使用](./linux的使用/ssh的使用.md)
     + [linux压缩包解压命令](./linux的使用/linux压缩包解压命令.md)
     + [docker的常见命令](./linux的使用/docker的常见命令.md)
++ unity3d学习
 + 其他问题
-    + C++新特性
-        + [argc和argv的关系和用法](./其他问题/C++新特性/argc和argv的关系.md)
-        + [assert的用法](./其他问题/C++新特性/assert的用法.md)
-        + [constptr的用法](./其他问题/C++新特性/constptr的用法.md)
-        + [inline的用法](./其他问题/C++新特性/inline的用法.md)
-        + [override的用法](./其他问题/C++新特性/override的用法.md)
-        + [typedef的用法](./其他问题/C++新特性/typedef的用法.md)
-        + [unique_ptr的用法](./其他问题/C++新特性/unique_ptr的用法.md)
-        + [析构函数=default的意义](./其他问题/C++新特性/析构函数=default的意义.md)
-        + [类型转换运算符](./其他问题/C++新特性/类型转换运算符.md)
-    + [markdown的常见格式.md](./其他问题/markdown的常见格式.md)
-    + [pandas数据结构的使用](./其他问题/pandas数据结构的使用.md)
-    + [python3和python2之间的切换](./其他问题/python3和python2之间的切换.md)
-    + [seaborn画图的使用](./其他问题/seaborn画图的使用.md)
+    + [C++新特性](其他问题/C++新特性/readme.md)
+    + Python问题总结
+    + 设备问题
+    + [markdown的常见格式](其他问题/markdown的常见格式.md)
++ 日常学习
+    + Kubernetes学习
+    + 机器学习
+    + 自动驾驶相关
+    + 遇到的问题
 + 项目总结
     + 工具安装使用教程
         + [boost的安装和测试](./项目总结/工具安装使用教程/boost的安装和测试.md)
@@ -49,8 +45,3 @@
         + [解决so文件找不到的问题](./项目总结/项目中遇到的问题/解决so文件找不到的问题.md)
     + [编译过程](./项目总结/编译过程.md)
     + [data_pipeline运行过程](./项目总结/date_pipeline运行过程.md)
-+ 机器学习
-+ [unity3d](./unity/readme.md)
-
-参考文档（代阅读）
-+ 传感器融合：激光雷达+摄像头： https://zhuanlan.zhihu.com/p/417375291
