@@ -11,7 +11,19 @@ docker registry 是一个仓库， 用于存放各种 docker image， 仓库可�
 ```
 docker login
 ```
+在上传 docker image 之前， 必须先建立一个 docker registry， 登陆后在 docker hub 点击 create->create repository
+### <font color="deepskyblue">上传 docker image</font>
+在 终端 输入 `docker image ls` 查看建立的image
+使用 `docker tag` 将新建的 docker image 标上 tag
+```
+docker tag {conatainer id} {registry name}:{version ex: v1.0.0}
+docker tag 59f3e3615488 zxcvbnius/docker-demo:v1.0.0
+```
+最后使用 `docker push`指令， 将标记好tag的image，上传到指定的registry
+```
+docker push {registry name}
+```
 
-### 
+### <font color="deepskyblue"></font>
 
 [参考链接](https://ithelp.ithome.com.tw/articles/10192824)
