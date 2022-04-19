@@ -11,6 +11,7 @@
 | crimson | <table><tr><td bgcolor=crimson></td></tr></table> |
 | deepskyblue | <table><tr><td bgcolor=deepskyblue></td></tr></table> |
 | skyblue | <table><tr><td bgcolor=skyblue></td></tr></table> |
+| greenyellow | <table><tr><td bgcolor=greenyellow></td></tr></table> |
 
 ### <font color="coral">上标和下标</font>
 H<sub>2</sub>O  
