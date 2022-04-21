@@ -13,3 +13,33 @@ sudo docker run allride-registry.cn-shanghai.cr.aliyuncs.com/map/map_storage:v2_
 sudo docker ps
 sudo docker inspect --format='{{.NetworkSettings.IPAddress}}' xxxxxxx(相应的id)
 ```
+
+### docker run 参数解释
++ <font color=deepskyblue>-v, --volume=[]</font> : 用于将 容器内的内容留在本地上，可存放在主機檔案系統中的任何地方，非 Docker 行程或 Docker 容器可隨時修改。
++ <font color=deepskyblue>-idt</font> : idt 是三个命令， 通常在一起使用， -i 以交互模式运行容器， -t 为容器重新分配一个伪终端， -d 后台运行容器， 并返回容器的id
+
+#### 例子
+使用docker镜像nginx:latest以后台模式启动一个容器,并将容器命名为mynginx。
+```
+docker run --name mynginx -d nginx:latest
+```
+
+使用镜像nginx:latest以后台模式启动一个容器,并将容器的80端口映射到主机随机端口。
+```
+docker run -P -d nginx:latest
+```
+
+使用镜像 nginx:latest，以后台模式启动一个容器,将容器的 80 端口映射到主机的 80 端口,主机的目录 /data 映射到容器的 /data
+```
+docker run -p 80:80 -v /data:/data -d nginx:latest
+```
+
+绑定容器的 8080 端口，并将其映射到本地主机 127.0.0.1 的 80 端口上。
+```
+$ docker run -p 127.0.0.1:80:8080/tcp ubuntu bash
+```
+
+使用镜像nginx:latest以交互模式启动一个容器,在容器内执行/bin/bash命令
+```
+docker run -it nginx:latest /bin/bash
+```
