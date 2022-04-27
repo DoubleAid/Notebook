@@ -47,3 +47,10 @@ spec:
         ports:
         - containerPort: 3000
 ```
+`replication controller` 的 spec 与 pod 的 yaml 有些不同
++ spec.replicas & spec.selector
++ spec.template
++ spec.template.metadata
+  
++ spec.template.spec
+  最后spec的部分定义了 container, 可以参考 pod 的 yaml 文档， 在我们的例子中， 一个 pod 只有一个 container
