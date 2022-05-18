@@ -9,23 +9,20 @@
 
 ## 快速索引
 + [linux的使用](linux的使用/readme.md)  
-    + shell脚本语法
-    + [git的常见命令](./linux的使用/git的常见命令.md)  
-    + [linux的常用命令.md](./linux的使用/linux的常用命令.md)
-    + [ssh的使用](./linux的使用/ssh的使用.md)
-    + [linux压缩包解压命令](./linux的使用/linux压缩包解压命令.md)
-    + [docker的常见命令](./linux的使用/docker的常见命令.md)
-+ unity3d学习
++ [unity3d学习](unity3d学习/readme.md)
 + 其他问题
     + [C++新特性](其他问题/C++新特性/readme.md)
-    + Python问题总结
-    + 设备问题
+    + [Python问题总结](其他问题/Python问题总结/README.md)
+    + [设备问题](其他问题/设备问题/README.md)
     + [markdown的常见格式](其他问题/markdown的常见格式.md)
 + 日常学习
-    + Kubernetes学习
-    + 机器学习
-    + 自动驾驶相关
-    + 遇到的问题
+    + [Docker相关](日常学习/Docker相关/dockerfile的编写.md)
+    + [gRPC相关](日常学习/gRPC相关/README.md)
+    + [Kubernetes学习](日常学习/Kubernetes学习/readme.md)
+    + [Qt5学习](日常学习/Qt5学习/1-第一个Qt程序.md)
+    + [机器学习](日常学习/机器学习/README.md)
+    + [自动驾驶相关](日常学习/自动驾驶相关/README.md)
+    + [遇到的问题](日常学习/遇到的问题/cuda安装时显示多个显卡驱动的问题.md)
 + 项目总结
     + 工具安装使用教程
         + [boost的安装和测试](./项目总结/工具安装使用教程/boost的安装和测试.md)
