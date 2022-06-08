@@ -1,3 +1,8 @@
+- [register](#register)
+- [运行数据集](#运行数据集)
+- [docker run 参数解释](#docker-run-参数解释)
+  - [例子](#例子)
+- [docker build 参数解释](#docker-build-参数解释)
 
 ### register 
 ```
@@ -43,3 +48,8 @@ $ docker run -p 127.0.0.1:80:8080/tcp ubuntu bash
 ```
 docker run -it nginx:latest /bin/bash
 ```
+
+### docker build 参数解释
++ --rm 设置镜像成功后删除中间容器
++ 
+
