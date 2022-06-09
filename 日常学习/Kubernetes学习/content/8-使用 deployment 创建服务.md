@@ -78,3 +78,14 @@ spec:
 ```
 Deployment yaml 的写法与 Replica Set 相似，如果kubectl 版本 >= 1.9，则需使用 app/v1, 如果版本小于 1.9 以前的话， 则需使用 app/v1beta2, 可以用 kubectl version 查看目前的版本号
 
+|      Deployment相关指令      | 指令功能 |
+|-----------------------------|-------------------------|
+| kubectl get deployment | 取得目前Kubernetes中的deployments的信息 |
+| kubectl get rs | 取得目前Kubernetes中的Replication Set的信息 |
+| kubectl describe deploy <deployment-name> | 取得特定deployment的詳細信息 |
+| kubectl set image deploy/ \<deployment-name> \<pod-name>: \<image-path>: \<version> | 將deployment管理的pod升級到特定image版本 |
+|kubectl edit deploy \<deployment-name>|編輯特定deployment物件|
+|kubectl rollout status deploy \<deployment-name>|查询目前某deployment升级狀況|
+|kubectl rollout history deploy \<deployment-name>|查询目前某deployment升级的历史记录|
+|kubectl rollout undo deploy \<deployment-name>|回滚Pod到先前一個版本|
+|kubectl rollout undo deploy \<deployment-name> --to-revision=n|回滚Pod到某ge特定版本|
