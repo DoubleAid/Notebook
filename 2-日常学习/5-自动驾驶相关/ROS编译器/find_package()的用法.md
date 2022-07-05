@@ -57,3 +57,78 @@ else(GLOG_FOUND)
     message(FATAL_ERROR ”GLOG library not found”)
 endif(GLOG_FOUND)
 ```
+
+## Module模式与Config模式
+
+find_package有两种模式，一种是Module模式，也就是我们引入curl库的方式。另一种叫做Config模式，也就是引入glog库的模式。下面我们来详细介绍着两种方式的运行机制。
+
+在Module模式中，cmake需要找到一个叫做Find<LibraryName>.cmake的文件。这个文件负责找到库所在的路径，为我们的项目引入头文件路径和库文件路径。cmake搜索这个文件的路径有两个，一个是上文提到的cmake安装目录下的share/cmake-<version>/Modules目录，另一个使我们指定的CMAKE_MODULE_PATH的所在目录。
+
+如果Module模式搜索失败，没有找到对应的Find<LibraryName>.cmake文件，则转入Config模式进行搜索。它主要通过<LibraryName>Config.cmake or <lower-case-package-name>-config.cmake这两个文件来引入我们需要的库。以我们刚刚安装的glog库为例，在我们安装之后，它在/usr/local/lib/cmake/glog/目录下生成了glog-config.cmake文件，而/usr/local/lib/cmake/<LibraryName>/正是find_package函数的搜索路径之一。（find_package的搜索路径是一系列的集合，而且在linux，windows，mac上都会有所区别，需要的可以参考官方文档find_package）
+
+由以上的例子可以看到，对于原生支持Cmake编译和安装的库通常会安装Config模式的配置文件到对应目录，这个配置文件直接配置了头文件库文件的路径以及各种cmake变量供find_package使用。而对于非由cmake编译的项目，我们通常会编写一个Find<LibraryName>.cmake，通过脚本来获取头文件、库文件等信息。通常，原生支持cmake的项目库安装时会拷贝一份XXXConfig.cmake到系统目录中，因此在没有显式指定搜索路径时也可以顺利找到。
+
+## 编写自己的Find<LibraryName>.cmake模块
+我们在当前目录下新建一个ModuleMode的文件夹，在里面我们编写一个计算两个整数之和的一个简单的函数库。库函数以手工编写Makefile的方式进行安装，库文件安装在/usr/lib目录下，头文件放在/usr/include目录下。其中的Makefile文件如下：
+```python
+# 1、准备工作，编译方式、目标文件名、依赖库路径的定义。
+CC = g++
+CFLAGS  := -Wall -O3 -std=c++11 
+
+OBJS = libadd.o #.o文件与.cpp文件同名
+LIB = libadd.so # 目标文件名
+INCLUDE = ./ # 头文件目录
+HEADER = libadd.h # 头文件
+
+all : $(LIB)
+
+# 2. 生成.o文件 
+$(OBJS) : libadd.cc
+    $(CC) $(CFLAGS) -I ./ -fpic -c $< -o $@
+
+# 3. 生成动态库文件
+$(LIB) : $(OBJS)
+    rm -f $@
+    g++ $(OBJS) -shared -o $@ 
+    rm -f $(OBJS)
+
+
+# 4. 删除中间过程生成的文件 
+clean:
+    rm -f $(OBJS) $(TARGET) $(LIB)
+
+# 5.安装文件
+install:
+    cp $(LIB) /usr/lib
+    cp $(HEADER) /usr/include
+```
+编译安装
+```
+make
+sudo make install
+```
+接下来回到Cmake项目中来，在cmake文件夹下新建一个FindAdd.cmake的文件。我们的目标是找到库的头文件所在目录和共享库文件的所在位置。
+```python
+# 在指定目录下寻找头文件和动态库文件的位置，可以指定多个目标路径
+find_path(ADD_INCLUDE_DIR libadd.h /usr/include/ /usr/local/include ${CMAKE_SOURCE_DIR}/ModuleMode)
+find_library(ADD_LIBRARY NAMES add PATHS /usr/lib/add /usr/local/lib/add ${CMAKE_SOURCE_DIR}/ModuleMode)
+
+if (ADD_INCLUDE_DIR AND ADD_LIBRARY)
+    set(ADD_FOUND TRUE)
+endif (ADD_INCLUDE_DIR AND ADD_LIBRARY)
+```
+
+这时我们便可以像引用curl一样引入我们自定义的库了。
+在CMakeLists.txt中添加
+```python
+# 将项目目录下的cmake文件夹加入到CMAKE_MODULE_PATH中，让find_pakcage能够找到我们自定义的函数库
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+add_executable(addtest addtest.cc)
+find_package(ADD)
+if(ADD_FOUND)
+    target_include_directories(addtest PRIVATE ${ADD_INCLUDE_DIR})
+    target_link_libraries(addtest ${ADD_LIBRARY})
+else(ADD_FOUND)
+    message(FATAL_ERROR "ADD library not found")
+endif(ADD_FOUND)
+```
