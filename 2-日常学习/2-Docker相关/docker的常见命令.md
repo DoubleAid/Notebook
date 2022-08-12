@@ -49,7 +49,25 @@ $ docker run -p 127.0.0.1:80:8080/tcp ubuntu bash
 docker run -it nginx:latest /bin/bash
 ```
 
+运行
+```
+docker run -idt -v /var/run/docker.sock -v /home/local/path/:/container/path/app --net=host image-name:tag
+```
+
+本地打开 docker 终端
+```
+docker exec -it container_id/container_name bash
+```
+
+规定接口运行
+```
+docker run -idt -p 5432:5432 {container_id/container_name}
+```
 ### docker build 参数解释
 + --rm 设置镜像成功后删除中间容器
-+ 
+
+参考运行方式
+```
+docker build --rm -f Dockerfile_service --build-arg AA=aa --build-arg BB=bb -t {build_container_name:tag} .
+```
 
