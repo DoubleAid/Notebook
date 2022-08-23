@@ -4,6 +4,7 @@
 - [下载分支](#下载分支)
 - [<font color=deepskyblue>git提交本地代码到远程分支</font>](#font-colordeepskybluegit提交本地代码到远程分支font)
 - [<font color=deepskyblue>修改远端仓库</font>](#font-colordeepskyblue修改远端仓库font)
+- [<font color=deepskyblue>更新本地分支</font>](#font-colordeepskyblue更新本地分支font)
 ### 安装
 ```
 sudo -i
@@ -59,3 +60,27 @@ merge = refs/heads/master
 
 修改 [remote “origin”]下面的url即可
 ```
+
+### <font color=deepskyblue>更新本地分支</font>
+1. 更新远程文件到本地方式一
+    1. 查看远程仓库  
+    `git remote -v`
+    2. 从远程获取最新版本到本地  
+    `git fetch origin aaa`
+    3. 比较远程分支和本地分支  
+    `git log -p aaa origin/aaa`
+    4. 合并远程分支到本地  
+    `git merge origin/aaa`
+
+2. 远程文件到本地方式二，在本地建临时分支，合并后删除
+    1. 查看远程仓库  
+    `git remote -v`
+    2. 从远程获取最新版本到本地  
+    `git fetch origin master:temp`
+    3. 比较远程分支和本地分支的区别  
+    `git diff temp`
+    4. 合并远程分支到本地  
+    `git merge temp`
+
+3. 使用pull更新  
+    `git pull origin aaa`

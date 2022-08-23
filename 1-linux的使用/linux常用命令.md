@@ -7,3 +7,13 @@ cp -r /a/* /c/d
 ```
 sudo chown -R guanggang.bian /opt/ros
 ```
+
+### 查看内存使用情况
+```
+free
+```
+### 查看CPU使用情况
+```
+top
+```
+### 
