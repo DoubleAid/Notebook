@@ -1,0 +1,26 @@
+FROM aaa.bbb.com/container_base:v0.0.1 as build
+ARG username=guanggang.bian
+ARG apikey=ABC@123456
+COPY . /app
+USER root
+RUN rm -rf /app/devel \
+    && mkdir -p /app/devel \
+    && chown com_name /app/devel
+WORKDIR /app/devel
+USER com_name
+RUN conan remote add conan-dev http://conan-api-address --insert \
+    && conan user -p $apikey -r conan-dev $username \
+USER root
+RUN chmod +x /opt/ros/kinetic/setup.bash \
+    && rm -rf /app/install \
+    && rm -rf /app/build \
+    && /bin/bash -c '. /opt/ros/kinetic/setup.bash; cd /app; catkin_make install -DCMAKE_BUILD_TYPE=Release'
+
+FROM aaa.bbb.com/container_base:v0.0.1
+COPY --from=build /app/devel /app/devel
+COPY --from=build /app/install /app/install
+COPY --from=build /app/map_client_entrypoint.sh /app
+RUN chmod +x /app/map_client_entrypoint.sh && cp -r /app/devel/lib /app/install
+WORKDIR /app
+ENTRYPOINT ["/app/map_client_entrypoint.sh"]
+CMD ["/bin/bash"]

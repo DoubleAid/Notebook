@@ -1,0 +1,50 @@
+version: "2.4"
+
+services:
+  exclusive-mode:
+    image: debian:stretch-slim
+    command: nvidia-smi -c EXCLUSIVE_PROCESS
+  ros_core:
+    image: aaa.bbb.com/department/roscore:kinetic
+    restart: on-failure
+    container_name: ros_core
+    network_mode: host
+    command: roscore
+    volumes:
+      - type: bind
+        source: ./logs/roscore
+        target: /root/.ros/log/
+    ports:
+      - "11311:11311"
+  map_db_node:
+    image: aaa.bbb.com/department/map_storage:v1
+    restart: on-failure
+    container_name: map_db_node
+    network_mode: host
+    volumes:
+      - "postgres-data:/var/lib/postgresql/"
+    ports:
+      - "5432:5432"
+  map_db_update_node:
+    image: aaa.bbb.com/department/client:v0.0.1
+    restart: on-failure
+    container_name: map_db_update_node
+    network_mode: host
+    volumes:
+      - type: bind
+        source: ./config/data/map/
+        target: /opt/comp_name/data/map/
+    depends_on:
+      - "ros_core"
+      - "map_db_node"
+volumes:
+  log-node:
+    external: false
+  log-data:
+    external: false
+  postgres-data:
+    external: true
+  nvidia_mps:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

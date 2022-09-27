@@ -74,3 +74,5 @@ $ nl testfile | sed  '/oo/d'
 $ nl testfile | sed -n '/oo/{s/oo/kk/;p;q}'  
      5  Gkkgle
 ```
+
+### <font color="coral">搜索 testfile 有 oo 关键字的行</font>
