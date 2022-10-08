@@ -40,3 +40,4 @@
     After move, str is ""
     The contents of the vector are "Hello", "Hello"
     ```
+    
