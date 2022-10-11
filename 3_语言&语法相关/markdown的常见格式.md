@@ -27,3 +27,9 @@ H<sub>2</sub>O
 ```
 <center> 123 </center>
 ```
+
+### <font color=coral> 注释 / 隐藏 </font>
+```
+<!-- 需要隐藏的内容 -->
+```
+<!-- 隐藏的内容 -->

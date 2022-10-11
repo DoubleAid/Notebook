@@ -9,20 +9,20 @@
 1. 添加 leetcode 刷题的内容，每天坚持更新
 
 ## 快速索引
-+ [1-linux的使用](linux的使用/readme.md)  
-+ 其他问题
-    + [C++新特性](其他问题/C++新特性/readme.md)
-    + [Python问题总结](其他问题/Python问题总结/README.md)
-    + [设备问题](其他问题/设备问题/README.md)
-    + [markdown的常见格式](其他问题/markdown的常见格式.md)
-+ 日常学习
-    + [Docker相关](日常学习/Docker相关/dockerfile的编写.md)
-    + [gRPC相关](日常学习/gRPC相关/README.md)
-    + [Kubernetes学习](日常学习/Kubernetes学习/readme.md)
-    + [Qt5学习](日常学习/Qt5学习/1-第一个Qt程序.md)
-    + [机器学习](日常学习/机器学习/README.md)
-    + [自动驾驶相关](日常学习/自动驾驶相关/README.md)
-    + [遇到的问题](日常学习/遇到的问题/cuda安装时显示多个显卡驱动的问题.md)
++ [1-linux相关](./1_linux相关/readme.md)
+    + [命令行 (3)](./1_linux相关/命令行)
+    + [问题解决 (4)](./1_linux相关/问题解决)
+    + [cmake&catkin_make (0)](1_linux相关/cmake%26catkin_make/)
+    + [git (3)](1_linux相关/git/)
+    + [shell脚本语法 (8)](1_linux相关/shell%E8%84%9A%E6%9C%AC%E8%AF%AD%E6%B3%95/)
++ [2-日常学习](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/)
+    + [1-SwiftUI (18)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/1_SwiftUI/)
+    + [2-Docker相关 (9)]()
+    + [3-Kubernetes学习 (13)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/2_Docker%E7%9B%B8%E5%85%B3/)
+    + [4-gRPC&Protobuf&Postgres (9)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/4_gRPC%26Protobuf%26Postgres/README.md)
+    + [5-自动驾驶相关 (18)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/5_%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6%E7%9B%B8%E5%85%B3/README.md)
+    + [6-机器学习 (19)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/6_%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/)
+<!-- 
 + 项目总结
     + 工具安装使用教程
         + [boost的安装和测试](./项目总结/工具安装使用教程/boost的安装和测试.md)
@@ -42,11 +42,12 @@
         + [解决so文件找不到的问题](./项目总结/项目中遇到的问题/解决so文件找不到的问题.md)
     + [编译过程](./项目总结/编译过程.md)
     + [data_pipeline运行过程](./项目总结/date_pipeline运行过程.md)
-
+-->
 ## 更新记录
 ### <font color=deepskyblue>2022年</font>
 + 10月11日
     + 新增 sql语法增删改查 内容， 增加 SQL函数 文档
+    + 修改功能目录 和 readme 目录
 + 10月10日
     + 新增 make_pair出现无法转化数据类型的问题.md
     + 修改 postgres 下面的目录结构， 添加文档
