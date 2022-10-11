@@ -9,8 +9,7 @@
 1. 添加 leetcode 刷题的内容，每天坚持更新
 
 ## 快速索引
-+ [linux的使用](linux的使用/readme.md)  
-+ [unity3d学习](unity3d学习/readme.md)
++ [1-linux的使用](linux的使用/readme.md)  
 + 其他问题
     + [C++新特性](其他问题/C++新特性/readme.md)
     + [Python问题总结](其他问题/Python问题总结/README.md)
@@ -45,6 +44,12 @@
     + [data_pipeline运行过程](./项目总结/date_pipeline运行过程.md)
 
 ## 更新记录
-+ 9.25
+### <font color=deepskyblue>2022年</font>
++ 10月11日
+    + 新增 sql语法增删改查 内容， 增加 SQL函数 文档
++ 10月10日
+    + 新增 make_pair出现无法转化数据类型的问题.md
+    + 修改 postgres 下面的目录结构， 添加文档
++ 9月25日
     + 更新 git 下面的几个方法
     + 修改一些文件的名称
