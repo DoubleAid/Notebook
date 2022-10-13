@@ -53,21 +53,21 @@ docker run -it nginx:latest /bin/bash
 ```
 docker run -idt -v /var/run/docker.sock -v /home/local/path/:/container/path/app --net=host image-name:tag
 ```
+### <font color=deepskyblue>规定接口运行</font>
+```
+docker run -idt -p 5432:5432 {container_id/container_name}
+```
 
-本地打开 docker 终端
+## <font color=coral>本地打开 docker 终端</font>
 ```
 docker exec -it container_id/container_name bash
 ```
 
-规定接口运行
-```
-docker run -idt -p 5432:5432 {container_id/container_name}
-```
 ## <font color=coral>docker build</font>
 + --rm 设置镜像成功后删除中间容器
 + -f 指定 Dockerfile
 
-参考运行方式
+### <font color=deepskyblue>参考运行方式</font>
 ```
 docker build --rm -f Dockerfile_service --build-arg AA=aa --build-arg BB=bb -t {build_container_name:tag} .
 ```
