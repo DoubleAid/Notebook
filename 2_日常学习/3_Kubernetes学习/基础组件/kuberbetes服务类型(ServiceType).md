@@ -106,3 +106,54 @@ spec:
 
 ## <font color=deepskyblue>5. Ingress入口 </font>
 你还可以使用 Ingress 来公开你的服务。 Ingress 不是服务类型， 但它充当集群的入口点。 它允许将路由规则整合到单一资源中，因为他可以在同一 IP 地址下公开多个服务
+
+不同类型的ingress控制器有不同的功能
+
+默认的 GKE ingress 控制器会启动一个 HTTP(S) Load Balancer, 可以通过基于路径或者是基于子域名的方式路由到后端服务。 例如， 可以通过 foo.yourdomain.com 发送任何东西到 foo 服务， 或者是发送 yourdomain.com/bar/ 路径下的任何东西到 bar 服务
+
+对于使用 第七层 HTTP Load Balancer 的 GKE 上的 Ingress 对象， 其 YAML 文件如下
+```yml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: 
+    name: my-ingress
+spec:
+    backend:
+        serviceName: other
+        servicePort: 8080
+    rules:
+      - host: foo.mydomain.com
+        http:
+            paths:
+              - backend:
+                  serviceNmae: foo
+                  servicePort: 8080
+      - host: foo.mydomain.com
+        http:
+            paths:
+              - path: /bar/*
+                backend:
+                  serviceName: bar
+                  servicePort: 8080
+```
+
+### 使用场景
+Ingress 是发布功能最强大， 也是最复杂的。 Ingress 控制器的类型很多， 如 Google Cloud Load Balancer， Nginx， Contour， Istio等等。 还有一些 Ingress 控制器插件， 比如证书控制器， 可以自动为服务提供ssl认证
+
+如果想在同一个 IP 地址下发布多个服务， 并且这些服务使用相同的第七层协议， 推荐使用 Ingress
+
+### Ingress yaml 文件参考
+```yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: ingress-wildcard-host
+spec:
+    rules:
+        - host: "foo.bar.com"
+          http:
+            paths:
+                - pathType: Prefix
+                  path: "/bar"
+                  backend:
+```
