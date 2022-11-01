@@ -1,6 +1,7 @@
 - [<font color="coral">在文件中插入一行</font>](#font-colorcoral在文件中插入一行font)
 - [<font color="coral">删除行</font>](#font-colorcoral删除行font)
 - [<font color="coral">搜索 testfile 有 oo 关键字的行</font>](#font-colorcoral搜索-testfile-有-oo-关键字的行font)
+- [<font color="coral">搜索 testfile 有 oo 关键字的行</font>](#font-colorcoral搜索-testfile-有-oo-关键字的行font-1)
 
 
 ### <font color="coral">在文件中插入一行</font>
