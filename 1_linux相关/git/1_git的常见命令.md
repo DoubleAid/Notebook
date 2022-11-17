@@ -25,6 +25,8 @@ git remote add origin git@xxxxxx.git
 git branch hello_new_branch
 git checkout hello_git_branch
 git push origin hello_git_branch
+
+git branch -d hello_git_branch # 删除本地临时分支
 ```
 ### <font color=deepskyblue>修改远端仓库</font>
 + 方法一 通过命令直接修改远程地址

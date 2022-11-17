@@ -12,3 +12,6 @@ class MyData(Dataset):
         self.root_dir = root_dir
         self.img_path = os.
 ```
+
+
+## dataloader
