@@ -1,0 +1,9 @@
++ [1_储备知识](./1_%E5%82%A8%E5%A4%87%E7%9F%A5%E8%AF%86/)
+  + [numpy中np.dot,np.multiply和np.matmul的用法](./1_储备知识/numpy中np.dot,np.multiply和np.matmul的用法.md)
+  + [numpy中矩阵的初始化](./1_储备知识/numpy中矩阵的初始化.md)
++ [2_基础知识](./2_%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/)
+  + [数据操作]()
++ [3_深度学习](./3_%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/)
++ [pytorch](./4_pytorch/)
+  + [lesson]()
+    + []

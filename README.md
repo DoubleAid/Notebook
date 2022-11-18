@@ -20,7 +20,7 @@
     + [3-Kubernetes学习 (17)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/2_Docker%E7%9B%B8%E5%85%B3/)
     + [4-gRPC&Protobuf&Postgres (12)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/4_gRPC%26Protobuf%26Postgres/README.md)
     + [5-自动驾驶相关 (14)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/5_%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6%E7%9B%B8%E5%85%B3/README.md)
-    + [6-机器学习 (19)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/6_%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/)
+    + [6-机器学习 (25)](./2_%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/6_%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/)
     + [7-cmake和catkin_make (4)](./2_日常学习/7_Cmake&Catkin_make/README.md)
 + [3-语言&语法相关](./3_%E8%AF%AD%E8%A8%80%26%E8%AF%AD%E6%B3%95%E7%9B%B8%E5%85%B3/README.md)
     + [C++ (21)](./3_语言&语法相关/C++/readme.md)
