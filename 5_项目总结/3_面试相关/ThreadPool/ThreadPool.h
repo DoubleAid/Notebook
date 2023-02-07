@@ -16,6 +16,11 @@ public:
     ThreadPool& operator=(const ThreadPool&) = delete;
     ~ThreadPool();
     void clear();
+    void wait(int interval = 500) {
+        while (jobs_count_.load() != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+        }
+    }
     template <typename Func, typename... Args>
     auto enqueue(Func&& func, Args&&... args)
         -> std::future<typename std::result_of<Func(Args...)>::type>;
@@ -87,7 +92,7 @@ auto ThreadPool::enqueue(Func&& func, Args&&... args)
     auto ret = task->get_future();
     {
         std::lock_guard<std::mutex> lock{jobs_mutex_};
-        jobs_.emplace([Task]() { (*task)(); });
+        jobs_.emplace([task]() { (*task)(); });
     }
     jobs_available_.notify_one();
     return ret;
