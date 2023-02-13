@@ -3,3 +3,5 @@
 + 矢量化建图方法，熟悉二部图、最小生成树、匈牙利匹配、KM算法
 + redis，kafka, grpc， thrift， k8s， jenkins, postgresql 以及 软件构建流程
 + remains 300 lc
+
++ 平衡二叉树 的 最小 父 节点
