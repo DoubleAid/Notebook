@@ -1,0 +1,4 @@
+在cmake语法中，link_libraries和target_link_libraries是很重要的两个链接库的方式，虽然写法上很相似，但是功能上有很大区别：
+
+1，link_libraries用在add_executable之前，target_link_libraries用在add_executable之后
+2，link_libraries用来链接静态库，target_link_libraries用来链接导入库，即按照header file + .lib + .dll方式隐式调用动态库的.lib库
