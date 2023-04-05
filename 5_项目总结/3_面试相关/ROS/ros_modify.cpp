@@ -74,5 +74,95 @@ wriShm<T>::~wriShm() {
 
 template <class T>
 bool wriShm<T>::write(const T &i) {
-    if(())
+    if((*pwri+1) % ((*size)+1) != *pred) {
+        array[*pwri] = i;
+        *pwri = ((*pwri) + 1) % ((*size) + 1);
+        return true
+    }
+    return false;
 }
+
+template <class T>
+class redShm{
+public:
+    redShm(int proj_id);
+    virtual ~redShm();
+    bool readmove(T *redret);
+    bool read(T *redret);
+    int hasr();
+    int hasr(int i);
+    int length();
+private:
+    int rfd;
+    void *ptr;
+    int *hasred, *size, *pwri, *pred;
+    T *array;
+};
+
+template <class T>
+redShm<T>::redShm(int proj_id) {
+    key_t key = ftok("./", proj_id);
+    if(key == -1) {
+        perror("ftok failure!");
+        exit(1);
+    }
+    this->rfd = shmget(key, 0, 0);
+    while(this->rfd == -1) {
+        perror("waiting for shm building\n");
+        this->rfd = shmget(key, 0, 0);
+    }
+    this->ptr = shmat(rfd, 0, 0);
+    if(ptr == (void*)(-1)) {
+        perror("read shmat failure\n");
+        exit(1);
+    }
+    this->hasred = (int*) ptr;
+    this->pwri = hasred + 1; this->size = hasred + 2;
+    this->pred = hasred + 3; this->array = (T*)(hasred+4);
+    *pwri = 0; *pred = 0;
+    printf("shm built succeed\n");
+}
+
+template <class T>
+redShm<T>::~redShm() {
+    if (shmdt(ptr) == -1) {
+        perror("read shmdt failure\n");
+        exit(1);
+    }
+    printf("read shmdt succeed\n");
+}
+
+template <class T>
+int redShm<T>::hasr() {
+    return *(this->hasred);
+}
+
+template <class T>
+int redShm<T>::hasr(int i) {
+    *(this->hasred) = i;
+}
+
+template <class T>
+int redShm<T>::length() {
+    return *(this->size);
+}
+
+template <class T>
+bool redShm<T>::readmove(T *redret) {
+    if(*pwri != *pred %((*size) + 1)) {
+        *redret = array[*pred];
+        *pred = ((*pred) + 1) % ((*size) + 1);
+        return true;
+    }
+    return false;
+}
+
+template <class T>
+bool redShm<T>::read(T *redret) {
+    if(*pwri != *pred) {
+        *redret = array[*pred];
+        return true;
+    }
+    return false;
+}
+

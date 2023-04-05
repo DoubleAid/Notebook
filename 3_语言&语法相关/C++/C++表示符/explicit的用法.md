@@ -49,6 +49,6 @@ void displayPoint(const Point& p) {
 
 int main() {
     displayPoint(Point(1)); // 1 会使用Point构造函数里面的默认构造函数
-    Point p(1)；
+    Point p(1);
 }
 ```
