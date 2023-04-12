@@ -1,20 +1,29 @@
 ![](./extra_images/v2-1846948dbfbe33d410644c80b614cd50_1440w.jpg)
 
-KMP算法 （全称 Knuth-Morris-Pratt 字符串查找算法， 由三维发明者的姓氏命名）是可以在文本串s中快速查找模式串p的一种算法。
+KMP算法
+```c++
+vector<int> get_kmp(const string& p) {
+    vector<int> pmt(p.length(), 0);
+    for (int i = 1, j = 0; i < p.length(); ++i) {
+        while (j && p[i] != p[j]) j = pmt[j - 1];
+        bool b = p[i] == p[j], c = p[i + 1] == p[j + 1];
+        if (b) pmt[i] = pmt[j++];
+        if (!b || !c) pmt[i] = j;
+    }
+    return pmt;
+}
 
-对于普通的暴力匹配， 就是逐个字符逐个字符的进行匹配， 如果当前字符串匹配成功（s[i] == p[j]）,就匹配下一个字符（i++, j++）,如果不适配， i 会进行回溯， j置为0 （i=i-j+1, j=0）, 代码如下：
-```C++
-int i=0, j=0;
-while (i < s.length()) {
-  if (s[i] == p[j]) {
-    i++, j++;
-  } else {
-    i = i - j + 1, j = 0;
-  }
-  if (j == p.length()) {
-    cout << i - j << endl;
-    i = i - j + 1;
-    j = 0;
-  }
+vector<int> kmp(const string& s, const string& p) {
+    vector<int> pmt = get_kmp(p);
+    vector<int> ans;
+    for (int i = 0, j = 0; i < s.length(); ++i) {
+        while (j && s[i] != p[j]) j = pmt[j - 1];
+        if (s[i] == p[j]) j++;
+        if (j == p.length()) {
+            ans.emplace_back(i-j+1);
+            j = pmt[j - 1];
+        }
+    }
+    return ans;
 }
 ```
