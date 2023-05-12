@@ -1,4 +1,11 @@
-# 参考连接 https://blog.csdn.net/gracioushe/article/details/5915900
+# unpack 的 用法
+
+### 参考连接 
+
++ [次要](https://blog.csdn.net/gracioushe/article/details/5915900)
++ [主要参考](https://cloud.tencent.com/developer/beta/article/1406350)
+
+### 用法介绍
 
 Python 中 按照一定的格式去除某字符串中的子字符串， 使用 `struct.unpack()` 是非常高效的
 
@@ -36,3 +43,12 @@ print(struct.unpack(format, "tast string"))
 | s | char[] | string | |
 | p | char[] | string | |
 | P | void* | interger | |
+
+
+| Character | Byte Order | Size | Alignment |
+| ---- | ---- | ---- | ---- |
+| @ | native | native | native |
+| = | native | standard | none |
+| < | little-endian | standard | none |
+| > | big-endian | standard | none |
+| ! | network (= big-endian) | standard | none |
