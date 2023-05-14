@@ -24,4 +24,7 @@ int Manacher(void) {
 	} 
     return max;
 }
+
+# a # b # b # c # b #
+maxR
 ```
