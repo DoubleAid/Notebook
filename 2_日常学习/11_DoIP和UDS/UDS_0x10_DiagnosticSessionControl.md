@@ -1,3 +1,0 @@
-# Diagnostc Session Control
-
-0x10诊断会话控制服务用于实现Client请求切换ECU的诊断模式。ECU上电后处于默认模式（Default diagnostic session），在默认模式中可实现的诊断服务是有一定限制的，比如无法解锁安全模式，则Bootloader、部分RoutineControl、部分数据写入就无法实现，直到通过0x10诊断会话切换ECU至non-default session。
