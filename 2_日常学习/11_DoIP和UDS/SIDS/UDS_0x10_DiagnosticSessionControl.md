@@ -6,5 +6,7 @@
 ## 请求格式
 
 | Parameter Name | Information | Byte Length | Values |
-| ---- | ---- | ---- |
-| SID |  |  |  |
+| ---- | ---- | ---- | ---- |
+| SID |  | 1 Byte | 0x10 |
+| Session || 1 Byte | 0x01/0x02/0x03 |
+
