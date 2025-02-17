@@ -122,14 +122,16 @@ std::mutex func_mutex;
 
 int mul(int a, int b, int i) {
     sleepTask();
-//    std::lock_guard<std::mutex> lock{func_mutex};
+    std::lock_guard<std::mutex> lock{func_mutex};
     std::cout << "i = " << i << "a = " << a << "  b = " << b << "  a * b = " << a*b << std::endl;
+    return 0;
 }
 
 int add(int a, int b, int i) {
     sleepTask();
-//    std::lock_guard<std::mutex> lock{func_mutex};
+    std::lock_guard<std::mutex> lock{func_mutex};
     std::cout << "i = " << i << "a = " << a << "  b = " << b << "  a + b = " << a+b << std::endl;
+    return 0;
 }
 
 
