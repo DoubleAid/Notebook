@@ -461,4 +461,253 @@ std::thread 是 C++ 标准库中用于创建和管理线程的类，提供了简
 
 通过合理使用 std::thread，可以实现高效的并发编程。
 
+### std::thread 和 std::async 的区别
+
+std::thread 和 std::async 都是 C++ 标准库中用于并发编程的工具，但它们在设计目标、使用方式和功能上存在显著区别。以下是它们的主要区别和适用场景：
+
+#### 1. 设计目标
+
++ std::thread：目标：直接管理线程的生命周期。用途：用于显式创建和管理线程，适合需要手动控制线程的行为（如线程同步、分离线程等）。
++ std::async：目标：简化异步任务的启动和结果管理。用途：用于启动异步任务并获取任务结果，适合不需要直接管理线程的场景。
+
+#### 2. 使用方式
+
+std::thread：创建线程时需要显式传递函数和参数。线程的同步需要手动调用 join() 或 detach()。
+示例：
+
+```cpp
+std::thread t([]() {
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::cout << "Thread finished!" << std::endl;
+});
+t.join();  // 等待线程完成
+```
+
+std::async：自动启动异步任务并返回一个 std::future 对象，用于获取任务结果。不需要显式管理线程，任务的执行方式由启动策略决定。
+示例：
+
+```cpp
+std::future<int> result = std::async([]() {
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    return 42;
+});
+std::cout << "Result: " << result.get() << std::endl;
+```
+
+#### 3. 启动策略
+
+std::thread：总是创建一个新的线程来执行任务。无法指定任务的执行策略。
+
+std::async：支持两种启动策略：
+
++ std::launch::async：强制任务在单独的线程中执行。
++ std::launch::deferred：任务在调用 std::future::get() 或 std::future::wait() 时才执行，类似于延迟计算。
++ 默认策略：根据系统资源和任务情况选择 async 或 deferred。
+
+#### 4. 任务结果管理
+
+std::thread：不提供直接的任务结果管理机制。如果需要获取任务结果，需要手动使用 std::promise 和 std::future。
+std::async：自动返回一个 std::future 对象，用于获取任务结果。
+支持任务的同步等待（get()）和异步等待（wait()、wait_for()）。
+
+#### 5. 适用场景
+
+std::thread：适合需要直接管理线程生命周期的场景，例如：手动同步线程（join()、detach()）。管理线程池。执行复杂的线程调度。
+std::async：适合简单的异步任务，尤其是那些不需要直接管理线程的场景，例如：启动后台任务并获取结果。实现延迟计算。简化异步编程模型。
+
+#### 6. 性能和资源管理
+
+std::thread：每次调用都会创建一个新的线程，可能导致线程资源的过度消耗。需要手动管理线程的生命周期，否则可能导致资源泄漏。
+std::async：根据启动策略决定是否创建新线程。默认策略会根据系统资源优化任务的执行方式，避免过度创建线程。
+
+#### 7. 示例对比
+
+```cpp
+// std::thread 示例
+#include <iostream>
+#include <thread>
+#include <chrono>
+
+void workerFunction() {
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::cout << "Thread finished!" << std::endl;
+}
+
+int main() {
+    std::thread t(workerFunction);
+    t.join();  // 等待线程完成
+    std::cout << "Main thread finished!" << std::endl;
+    return 0;
+}
+
+// std::async 示例
+#include <iostream>
+#include <future>
+#include <chrono>
+
+int workerFunction() {
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    return 42;
+}
+
+int main() {
+    std::future<int> result = std::async(std::launch::async, workerFunction);
+    std::cout << "Result: " << result.get() << std::endl;
+    std::cout << "Main thread finished!" << std::endl;
+    return 0;
+}
+```
+
+#### 8. 总结
+
+std::thread：适合需要直接管理线程生命周期的场景。提供更细粒度的控制，但需要手动管理线程同步和资源。
+std::async：适合简单的异步任务，尤其是那些不需要直接管理线程的场景。提供更简洁的接口，自动管理任务结果和线程资源。
+
+选择哪种工具取决于你的具体需求：
+
++ 如果需要直接管理线程，使用 std::thread。
++ 如果需要简化异步任务的管理，使用 std::async。
+
 ## std::promise
+
+std::promise 是 C++ 标准库中用于异步编程的一个工具类，它与 std::future 配合使用，允许你设置一个异步操作的结果，并通过 std::future 获取这个结果。
+std::promise 是设置异步操作结果的一端，而 std::future 是获取结果的另一端。
+
+### std::promise 的主要功能
+
++ 设置异步操作的结果：通过 std::promise 的 set_value() 方法，可以设置异步操作的返回值。
++ 设置异步操作的异常：通过 set_exception() 方法，可以设置异步操作抛出的异常。
++ 获取关联的 std::future：通过 get_future() 方法，可以获取与 std::promise 关联的 std::future 对象。
+
+### std::promise 的构造函数
+
+```cpp
+template <typename T>
+class promise {
+public:
+    promise();
+    ~promise();
+
+    void set_value(T&& value);  // 设置异步操作的结果
+    void set_exception(std::exception_ptr e);  // 设置异步操作的异常
+
+    std::future<T> get_future();  // 获取关联的 std::future 对象
+};
+```
+
+### 使用示例
+
+#### (1) 基本用法
+
+以下是一个简单的例子，展示如何使用 std::promise 和 std::future 进行异步编程：
+
+```cpp
+#include <iostream>
+#include <thread>
+#include <future>
+#include <chrono>
+
+void workerFunction(std::promise<int> promise) {
+    std::this_thread::sleep_for(std::chrono::seconds(2));  // 模拟耗时操作
+    promise.set_value(42);  // 设置异步操作的结果
+}
+
+int main() {
+    std::promise<int> promise;  // 创建一个 std::promise 对象
+    std::future<int> future = promise.get_future();  // 获取关联的 std::future 对象
+
+    std::thread worker(workerFunction, std::move(promise));  // 启动后台线程执行任务
+
+    std::cout << "Waiting for the result..." << std::endl;
+    int result = future.get();  // 等待任务完成并获取结果
+    std::cout << "The result is: " << result << std::endl;
+
+    worker.join();
+    return 0;
+}
+```
+
+#### (2) 设置异常
+
+std::promise 也可以设置异常，而不是设置一个值。以下是一个示例：
+
+```cpp
+#include <iostream>
+#include <thread>
+#include <future>
+#include <chrono>
+#include <stdexcept>
+
+void workerFunction(std::promise<int> promise) {
+    try {
+        std::this_thread::sleep_for(std::chrono::seconds(2));  // 模拟耗时操作
+        throw std::runtime_error("Something went wrong!");  // 抛出异常
+    } catch (...) {
+        promise.set_exception(std::current_exception());  // 设置异常
+    }
+}
+
+int main() {
+    std::promise<int> promise;
+    std::future<int> future = promise.get_future();
+
+    std::thread worker(workerFunction, std::move(promise));
+
+    std::cout << "Waiting for the result..." << std::endl;
+    try {
+        int result = future.get();  // 等待任务完成并获取结果
+        std::cout << "The result is: " << result << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Caught exception: " << e.what() << std::endl;
+    }
+
+    worker.join();
+    return 0;
+}
+```
+
+#### (3) 与 std::async 和 std::future 配合使用
+
+std::promise 和 std::future 也可以与 std::async 配合使用，实现更复杂的异步编程模式。以下是一个示例：
+
+```cpp
+#include <iostream>
+#include <future>
+#include <chrono>
+
+void workerFunction(std::promise<int> promise) {
+    std::this_thread::sleep_for(std::chrono::seconds(2));  // 模拟耗时操作
+    promise.set_value(42);  // 设置异步操作的结果
+}
+
+int main() {
+    std::promise<int> promise;  // 创建一个 std::promise 对象
+    std::future<int> future = promise.get_future();  // 获取关联的 std::future 对象
+
+    std::async(std::launch::async, workerFunction, std::move(promise));  // 启动后台任务
+
+    std::cout << "Waiting for the result..." << std::endl;
+    int result = future.get();  // 等待任务完成并获取结果
+    std::cout << "The result is: " << result << std::endl;
+
+    return 0;
+}
+```
+
+### std::promise 的主要用途
+
++ 异步编程：允许你在后台线程中执行任务，并通过 std::future 获取结果。
++ 任务同步：通过 std::promise 设置任务的结果，通过 std::future 等待任务完成。
++ 异常处理：允许你设置任务的异常，而不是设置一个值。
+
+### 总结
+
++ std::promise：用于设置异步操作的结果。
++ std::future：用于获取异步操作的结果。
+
+主要用途：
+
++ 实现异步任务。
++ 处理任务的返回值或异常。
++ 与 std::async 和线程池配合使用，实现复杂的异步编程模式。
++ std::promise 是 C++ 标准库中一个非常强大的工具，尤其适合需要在后台线程中执行任务并获取结果的场景。
