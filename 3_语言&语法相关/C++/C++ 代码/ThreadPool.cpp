@@ -43,6 +43,7 @@ private:
 
 ThreadPool::ThreadPool(int thread_count) : jobs_count_(0), terminate_(false) {
     threads_.reserve(thread_count);
+    // generate_n 的第三个参数必须是 可执行函数
     std::generate_n(std::back_inserter(threads_), thread_count, [this]() {
         return std::thread{threadTask, this};
     });
