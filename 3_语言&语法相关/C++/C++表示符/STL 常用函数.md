@@ -1,5 +1,9 @@
-### std::back_inserter
+# STL 常用函数
+
+## std::back_inserter
+
 返回已存在数据的最有一个 迭代器
+
 ```cpp
 #include <iostream>
 #include <vector>
