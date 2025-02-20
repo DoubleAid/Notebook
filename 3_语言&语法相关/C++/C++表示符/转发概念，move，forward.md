@@ -99,6 +99,166 @@ void wrapper(T&& arg) {
 
 ## std::forward
 
+std::forward 是 C++11 引入的一个标准库函数，用于实现完美转发（perfect forwarding）。
+完美转发允许函数模板将参数以完全相同的值类别（左值或右值）转发到目标函数，从而避免不必要的拷贝或移动操作，并保持代码的灵活性和效率。
+
+### 1. std::forward 的基本用法
+
+std::forward 的语法如下：
+
+```cpp
+template <typename T>
+constexpr T&& forward(std::remove_reference_t<T>& t) noexcept;
+```
+
++ T：模板参数类型。
++ std::remove_reference_t<T>：去掉 T 的引用类型（如果 T 是引用类型）。
++ t：要转发的参数。
+
+std::forward 的作用是根据模板参数 T 的类型，将参数 t 转换为 T&& 类型（右值引用）。它的行为取决于 T 的类型：
+如果 T 是非引用类型（如 int 或 std::string），std::forward 将 t 转换为右值引用。
+如果 T 是引用类型（如 int& 或 int&&），std::forward 将 t 转换为左值引用。
+
+### 2. 完美转发的原理
+
+完美转发的核心在于保持参数的值类别（左值或右值）不变。例如：
+如果传入的是左值（如变量 int x = 10;），std::forward 会将其转发为左值引用。
+如果传入的是右值（如临时对象 int{10}），std::forward 会将其转发为右值引用。
+通过这种方式，目标函数可以接收到与原始参数完全相同的值类别，从而实现高效的资源管理。
+
+### 3. 典型应用场景
+
+#### 3.1 模板函数中的参数转发
+
+假设你有一个模板函数，需要将参数转发到另一个函数，但希望保持参数的值类别不变。例如：
+
+```cpp
+template <typename T>
+void wrapper(T&& arg) {
+    targetFunction(std::forward<T>(arg));
+}
+```
+
+如果调用 wrapper(x)，其中 x 是一个左值（如 int x = 10;），std::forward<T>(arg) 会将其转发为左值引用。
+如果调用 wrapper(int{10})，std::forward<T>(arg) 会将其转发为右值引用。
+
+#### 3.2 构造函数转发
+
+在类模板中，std::forward 常用于将参数转发到基类的构造函数或成员变量的构造函数。例如：
+
+```cpp
+template <typename T>
+class Wrapper {
+public:
+    Wrapper(T&& value) : value_(std::forward<T>(value)) {}
+
+private:
+    T value_;
+};
+```
+
+如果传入的是左值，value_ 会以左值引用的方式构造。
+如果传入的是右值，value_ 会以右值引用的方式构造，从而触发移动构造函数。
+
+#### 3.3 函数模板的参数转发
+
+在函数模板中，std::forward 用于将参数转发到其他函数模板。例如：
+
+```cpp
+template <typename T>
+void process(T&& arg) {
+    std::forward<T>(arg).print();
+}
+
+template <typename T>
+void print() {
+    std::cout << "Left value" << std::endl;
+}
+
+template <typename T>
+void print() && {
+    std::cout << "Right value" << std::endl;
+}
+```
+
+如果调用 process(x)，其中 x 是一个左值（如 int x = 10;），std::forward<T>(arg) 会将其转发为左值引用。
+如果调用 process(int{10})，std::forward<T>(arg) 会将其转发为右值引用。
+
+### 4. 示例代码
+
+#### 示例 1：通用工厂函数
+
+```cpp
+#include <iostream>
+#include <utility>
+#include <vector>
+
+class Resource {
+public:
+    Resource(const std::string& name) {
+        std::cout << "Resource created with const string&: " << name << std::endl;
+    }
+
+    Resource(std::string&& name) {
+        std::cout << "Resource created with string&&: " << name << std::endl;
+    }
+};
+
+template <typename... Args>
+Resource createResource(Args&&... args) {
+    return Resource(std::forward<Args>(args)...);
+}
+
+int main() {
+    std::string name = "example";
+    Resource r1 = createResource(name);  // 调用左值引用构造函数
+    Resource r2 = createResource(std::string("temporary"));  // 调用右值引用构造函数
+    return 0;
+}
+
+// 输出
+// Resource created with const string&: example
+// Resource created with string&&: temporary
+```
+
+#### 示例 2：模板包装器函数
+
+```cpp
+#include <iostream>
+#include <utility>
+
+void process(int& x) {
+    std::cout << "Processing int&: " << x << std::endl;
+}
+
+void process(int&& x) {
+    std::cout << "Processing int&&: " << x << std::endl;
+}
+
+template <typename T>
+void wrapper(T&& arg) {
+    process(std::forward<T>(arg));
+}
+
+int main() {
+    int x = 10;
+    wrapper(x);  // 调用 process(int&)
+    wrapper(20); // 调用 process(int&&)
+    return 0;
+}
+
+// 输出
+// Processing int&: 10
+// Processing int&&: 20
+```
+
+### 5. 总结
+
+std::forward 是实现完美转发的核心工具，它通过模板参数 T 的类型，将参数 t 转换为 T&& 类型（右值引用）。它的行为取决于 T 的类型：
+如果 T 是非引用类型，std::forward 将参数转发为右值引用。
+如果 T 是引用类型，std::forward 将参数转发为左值引用。
+通过使用 std::forward，可以确保参数的值类别（左值或右值）被正确地转发到目标函数，从而实现高效的资源管理，避免不必要的拷贝或移动操作。
+
 std::forward 是一个工具，用于在模板函数中保持参数的值类别（左值或右值）不变，并将参数转发到目标函数。它的行为取决于模板参数 T 的类型：
 
 + 如果 T 是非引用类型（如 int 或 MyClass），`std::forward<T>(arg)` 会将 arg 转发为右值引用。
