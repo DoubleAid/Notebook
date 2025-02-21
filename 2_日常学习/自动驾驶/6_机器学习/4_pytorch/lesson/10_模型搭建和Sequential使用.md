@@ -1,7 +1,9 @@
 # 以 CRFAR10 model 为例
+
 ![label](https://www.researchgate.net/profile/Yiren-Zhou-6/publication/312170477/figure/fig2/AS:448817725218817@1484017892180/Structure-of-CIFAR10-quick-model.png)
 
 ## 网络模型
+
 ```python
 import torch
 from torch.nn import Conv2d, Linear, MaxPool2d, Flatten
@@ -45,7 +47,9 @@ writer.close()
 ```
 
 ## 使用 sequential
+
 和上面的相差不大， 主要是更加简介
+
 ```python
 import torch
 from torch.nn import Conv2d, Linear, MaxPool2d, Flatten

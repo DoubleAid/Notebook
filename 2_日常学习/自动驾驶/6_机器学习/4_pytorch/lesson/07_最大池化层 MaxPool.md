@@ -1,10 +1,12 @@
-Pooling Layers
+# Pooling Layers
+
 + MaxPool: 最大池（下采样）
 + MaxUnpool: (上采样)
 
 最大池化的目的： 减小数据量， 保留特征， 加快训练速度
 
 ## Parameters
+
 + kernel_size:
 + stride： 默认和 kernel_size 相同
 + padding
@@ -13,6 +15,7 @@ Pooling Layers
 + ceil_mode (bool): ceil 取上限 floor 取下线， 默认为 true， 当池化核不能完全覆盖时， 也会进行池化
 
 ## shape
+
 + Input: $(N, C, H_{in}, W_{in})$ or $(C, H_{in}, W_{in})$
 + Output: $(N, C, H_{out}, W_{out})$ or $(C, H_{out}, W_{out})$
   + $H_{out}=[{{H_{in}+2*padding[0]-dilation[0]*(kernelsize[0]-1)} \over stride[0]} + 1]$
@@ -40,7 +43,7 @@ mypool = MyPool()
 output = mypool(input)
 ```
 
-```
+```python
 import torch
 import torchvision
 from torch.nn import Conv2d, MaxPool2d
