@@ -1,5 +1,35 @@
 # constexpr 的用法
 
+- [constexpr 的用法](#constexpr-的用法)
+  - [1. constexpr 的基本用法](#1-constexpr-的基本用法)
+    - [1.1 声明编译时常量](#11-声明编译时常量)
+    - [1.2 声明 constexpr 函数](#12-声明-constexpr-函数)
+    - [1.3 声明 constexpr 构造函数](#13-声明-constexpr-构造函数)
+  - [2. 示例代码](#2-示例代码)
+    - [2.2 constexpr 函数](#22-constexpr-函数)
+    - [2.3 constexpr 构造函数](#23-constexpr-构造函数)
+  - [3. constexpr 的注意事项](#3-constexpr-的注意事项)
+    - [3.1 编译时常量表达式](#31-编译时常量表达式)
+    - [3.2 constexpr 函数的限制](#32-constexpr-函数的限制)
+    - [3.3 constexpr 构造函数的限制](#33-constexpr-构造函数的限制)
+  - [4. 总结](#4-总结)
+  - [const 和 constexpr 之间的区别](#const-和-constexpr-之间的区别)
+    - [1. const 和 constexpr 的区别](#1-const-和-constexpr-的区别)
+      - [1.1 const](#11-const)
+      - [1.2 constexpr](#12-constexpr)
+    - [2. constexpr 的优势](#2-constexpr-的优势)
+      - [2.1 编译时计算](#21-编译时计算)
+      - [2.2 用作编译时常量](#22-用作编译时常量)
+      - [2.3 提高代码安全性](#23-提高代码安全性)
+    - [3. constexpr 函数与内联函数的区别](#3-constexpr-函数与内联函数的区别)
+      - [3.1 内联函数](#31-内联函数)
+      - [3.2 constexpr 函数](#32-constexpr-函数)
+    - [4. constexpr 的应用场景](#4-constexpr-的应用场景)
+      - [4.1 编译时常量](#41-编译时常量)
+      - [4.2 编译时计算](#42-编译时计算)
+      - [4.3 模板参数](#43-模板参数)
+      - [5. 总结](#5-总结)
+
 constexpr 是 C++11 引入的一个关键字，用于声明编译时常量表达式。它允许在编译时计算表达式的值，从而提高程序的性能和安全性。
 constexpr 可以用于变量、函数和构造函数，确保它们的值或行为在编译时确定。
 
@@ -282,8 +312,10 @@ struct Array {
 
 constexpr int size = 10;
 Array<size> arr;  // 使用编译时常量作为模板参数
-``
-5. 总结
+```
+
+#### 5. 总结
+
 constexpr 是一个非常强大的工具，用于声明编译时常量和函数。它确保变量和函数的值在编译时确定，可以显著提高性能和安全性。以下是 constexpr 的主要优势：
 编译时计算：constexpr 函数和变量的值在编译时确定，而不是运行时。
 用作编译时常量：constexpr 变量和函数的值可以用于需要编译时常量的场景，如数组大小、模板参数等。
