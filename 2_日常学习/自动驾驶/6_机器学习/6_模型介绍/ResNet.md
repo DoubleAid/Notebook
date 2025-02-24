@@ -32,6 +32,8 @@ ResNet 的结构由多个残差块组成，每个残差块包含两个或多个�
 ```cpp
 x -> Conv -> BN -> ReLU -> Conv -> BN -> + -> ReLU -> y
                      |__________________________|
+```
+
 跳跃连接的作用
 跳跃连接允许梯度直接传播到前面的层，从而缓解了梯度消失问题。同时，它也使得网络能够学习到恒等映射，即使在添加更多层时也不会影响网络的性能。
 
@@ -83,6 +85,7 @@ public:
         register_module("bn2", bn2);
     }
 
+    # x -> conv -> bn -> relu -> conv -> bn -> + -> relu -> y
     torch::Tensor forward(torch::Tensor x) {
         torch::Tensor identity = x;
 
@@ -146,9 +149,11 @@ class ResidualBlock(nn.Module):
         return out
 ```
 
-2. ResNet-18 模型的实现
+### 7.2. ResNet-18 模型的实现
+
 ResNet-18 是一个具有 18 层的 ResNet 模型，包含 4 个残差块层。
-Python复制
+
+```Python
 class ResNet18(nn.Module):
     def __init__(self, num_classes=1000):
         super(ResNet18, self).__init__()
@@ -158,10 +163,10 @@ class ResNet18(nn.Module):
         self.bn1 = nn.BatchNorm2d(64)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        self.layer1 = self._make_layer(64, 2, stride=1)
-        self.layer2 = self._make_layer(128, 2, stride=2)
-        self.layer3 = self._make_layer(256, 2, stride=2)
-        self.layer4 = self._make_layer(512, 2, stride=2)
+        self.layer1 = self._make_layer(64, 2, stride=1)  # strides = 1 + 1 * 0 = 1
+        self.layer2 = self._make_layer(128, 2, stride=2) # strides = 2
+        self.layer3 = self._make_layer(256, 2, stride=2) # 2
+        self.layer4 = self._make_layer(512, 2, stride=2) # 2
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512, num_classes)
@@ -188,9 +193,13 @@ class ResNet18(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc(x)
         return x
-3. 使用 ResNet-18 进行图像分类
+```
+
+### 7.3. 使用 ResNet-18 进行图像分类
+
 以下是一个简单的示例，展示如何使用 ResNet-18 进行图像分类任务。
-Python复制
+
+```Python
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -235,5 +244,98 @@ for epoch in range(num_epochs):
 print('Finished Training')
 ```
 
-1. 总结
-ResNet 是一种非常重要的深度卷积神经网络架构，通过引入残差学习机制，有效解决了深度网络训练中的梯度消失和梯度爆炸问题。ResNet 的结构简单、易于实现，适用于多种计算机视觉任务，是现代深度学习中不可或缺的一部分。
+## 8. 这个卷积层的 stride 如果不为1的化，out的shape 不是和 identity不一样吗，他们怎么相加
+
+你的观察非常敏锐，确实指出了一个关键问题。在 ResNet 的残差块中，如果卷积层的 stride 不为 1，那么输出的特征图（out）的尺寸会与输入的特征图（identity）的尺寸不一致，这会导致无法直接相加。
+
+### 问题分析
+
+在 ResidualBlock 中，如果 stride 不为 1，conv1 的输出特征图的尺寸会减小。例如，如果输入特征图的尺寸为 H×W，stride 为 2，那么输出特征图的尺寸会变为 2H​×2W​。而 identity 的尺寸仍然是 H×W，因此它们无法直接相加。
+
+### 解决方案
+
+为了解决这个问题，shortcut 也需要对输入特征图进行下采样，以匹配 out 的尺寸。这通常通过一个步长为 stride 的 1x1 卷积层来实现。这样，shortcut 的输出特征图的尺寸会与 out 的尺寸一致，从而可以相加。
+
+### 修正代码
+
+以下是修正后的 ResidualBlock 实现：
+
+```Python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(out_channels)
+            )
+
+    def forward(self, x):
+        identity = self.shortcut(x)
+
+        out = self.conv1(x)
+        out = F.relu(self.bn1(out))
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        out += identity
+        out = F.relu(out)
+        return out
+```
+
+### 关键点解释
+
+shortcut 的设计：
+
+如果 stride 不为 1 或者输入通道数 in_channels 与输出通道数 out_channels 不一致，shortcut 会包含一个 1x1 卷积层和一个批量归一化层。
+1x1 卷积层的作用是调整通道数和下采样特征图，使其尺寸与 out 一致。
+
+conv1 和 conv2 的设计：
+
+conv1 使用步长 stride，可能改变特征图的尺寸。
+conv2 使用步长 1，保持特征图的尺寸不变。
+
+相加操作：
+
+out 和 identity 的尺寸一致，可以直接相加。
+
+### 示例验证
+
+以下是一个简单的示例，验证修正后的 ResidualBlock 是否正确处理了尺寸不一致的问题：
+
+```Python
+import torch
+
+# 创建一个输入张量
+input_tensor = torch.randn(1, 64, 32, 32)  # 假设输入特征图的尺寸为 32x32，通道数为 64
+
+# 创建一个 ResidualBlock 实例
+block = ResidualBlock(64, 128, stride=2)  # 输入通道数为 64，输出通道数为 128，步长为 2
+
+# 前向传播
+output = block(input_tensor)
+
+print("Input shape:", input_tensor.shape)  # 输入形状
+print("Output shape:", output.shape)      # 输出形状
+
+# 输出结果
+# Input shape: torch.Size([1, 64, 32, 32])
+# Output shape: torch.Size([1, 128, 16, 16])
+```
+
+### 总结
+
+问题：如果 stride 不为 1，conv1 的输出特征图的尺寸会减小，与 identity 的尺寸不一致。
+解决方案：shortcut 通过 1x1 卷积层和批量归一化层对输入特征图进行下采样，使其尺寸与 out 一致。
+验证：通过简单的示例验证了修正后的 ResidualBlock 能够正确处理尺寸不一致的问题。
+通过这种方式，ResNet 的残差块可以正确地处理不同尺寸的特征图，从而实现高效的残差学习。
