@@ -148,7 +148,7 @@ Feed-Forward。
 
 ![](https://cdn.nlark.com/yuque/0/2022/png/873758/1660535717678-6a8ed9c4-434d-4e0f-bd0d-3d159f2a24ee.png)
 
-<font style="color:rgb(18, 18, 18);">空间交叉注意力机制Spatial Cross-Attention。在z轴上采样4个高度值，获得3d空间下的采样点，则会覆盖不同的高度例如-3米到3米。让后用相机的内外参将3d点投影到2d点，由于投影点不太准，需要在投影点作为先验在附近进行采样。每个视图只提取跟他交互的bev。</font>
+<font style="color:rgb(118, 118, 118);">空间交叉注意力机制Spatial Cross-Attention。在z轴上采样4个高度值，获得3d空间下的采样点，则会覆盖不同的高度例如-3米到3米。让后用相机的内外参将3d点投影到2d点，由于投影点不太准，需要在投影点作为先验在附近进行采样。每个视图只提取跟他交互的bev。</font>
 
 ![](https://cdn.nlark.com/yuque/0/2022/png/873758/1660535728093-fba1ed93-97ce-4920-9f0d-a0ae673a02fe.png)
 

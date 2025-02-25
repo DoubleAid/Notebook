@@ -1,6 +1,9 @@
+# ros topic 的用法
+
 之前已经了解了不同的node实现不同的功能，而 不同 node 之间的沟通需要通过 topic 进行
 
 ### <font color="deepskyblue">Topic</font>
+
 topic 有点像 tag 一样的标签功能，如果我 mark 了某个topic， 那么只要有 某个 node 标记的这个 topic， 我就可以收到通知 有这个标签的文章（node）上线了，可以查看node的信息。
 
 node 可以利用发布关于某种 topic 的信息，而如果有 node 正在监听 这个 topic 的信息，就可以接受到这个信息，这就是 publisher（发布者） 和 subscriber（订阅者）
@@ -10,9 +13,11 @@ publisher 和 subscriber 之间的关系可以是一对一，一对多，多对�
 topic 机制是通过 TCP/IP 来传输的， 可以通过 rosnode info 查看node 的ip地址
 
 ### <font color="deepskyblue">Message</font>
+
 两个 node 通过 topic 传递信息时，需要先约定好传递的信息的格式，每个Topic需要先限定使用怎样的message type， 比如 控制动作的 actionlib_msgs、导航用的nav_msgs、传感器用的 sensor_msgs等等，有些别人已经写好了，也可以自己定义 message
 
 ### <font color="deepskyblue">用python写Publisher</font>
+
 ```python
 import rospy
 # topic 需要 std_msgs.msg 来定义消息的格式
@@ -41,11 +46,13 @@ if __name__ == "__main__":
     except rospy.ROSInterruptException:
         pass
 ```
+
 运行这个文件，可以看到 有大量的 INFO 被打印出来，这是由 rospy.loginfo 打印出来的， 就像 rosnode list 查看 node 一样， rostopic list 可以查看 topic的运行状态
 
 可以使用 `rostopic echo /chatter` 查看该topic 发送的信息
 
 ### <font color="deepskyblue">用python写Subscriber</font>
+
 ```python
 import rospy
 from std_msgs.msg import String
@@ -67,7 +74,9 @@ if __name__ == "__main__":
 ```
 
 ### <font color="deepskyblue">使用C++编写Publisher</font>
+
 参考链接：https://ithelp.ithome.com.tw/articles/10205657
+
 ```cpp
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -99,6 +108,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 ```
-### <font color="deepskyblue">使用C++编写Subscriber</font>
-参考链接： https://ithelp.ithome.com.tw/articles/10205877
 
+### <font color="deepskyblue">使用C++编写Subscriber</font>
+
+参考链接： https://ithelp.ithome.com.tw/articles/10205877
