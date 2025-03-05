@@ -4,12 +4,12 @@
 #include <chrono>
 
 std::shared_timed_mutex mtx;
-int shared_data1 = 0;
+int shared_data = 0;
 
 void read_data() {
     std::shared_lock<std::shared_timed_mutex> lock(mtx, std::defer_lock);
     if (lock.try_lock_for(std::chrono::seconds(1))) {
-        std::cout << "Read Data: " << shared_data1 << std::endl;
+        std::cout << "Read Data: " << shared_data << std::endl;
     } else {
         std::cout << "Failed to acquire shared lock\n" << std::endl;
     }
@@ -18,8 +18,8 @@ void read_data() {
 void write_data() {
     std::unique_lock<std::shared_timed_mutex> lock(mtx, std::defer_lock);
     if (lock.try_lock_for(std::chrono::seconds(1))) {
-        shared_data1++;
-        std::cout << "Write Data: " << shared_data1 << std::endl;
+        shared_data++;
+        std::cout << "Write Data: " << shared_data << std::endl;
     } else {
         std::cout << "Fail to acquire unique lock" << std::endl;
     }
