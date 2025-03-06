@@ -74,7 +74,7 @@ private:
     bool stop = false;
 };
 
-void handle_connection(int fd) {
+void handle_connection(int fd, int epoll_fd) {
     char buffer[1024];
     ssize_t bytes_read = read(fd, buffer, sizeof(buffer) - 1);
     if (bytes_read > 0) {
@@ -84,6 +84,10 @@ void handle_connection(int fd) {
     } else {
         std::cout << "Connection closed on fd " << fd << std::endl;
         close(fd);
+        struct epoll_event event;
+        event.data.fd = fd;
+        event.events = EPOLLIN | EPOLLET;
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, &event); // Remove from epoll
     }
 }
 
@@ -130,9 +134,8 @@ void epoll_loop(int server_fd, ThreadPool& pool) {
         exit(EXIT_FAILURE);
     }
 
-    std::vector<epoll_event> events(MAX_EVENTS);
-
     while (true) {
+        std::vector<epoll_event> events(MAX_EVENTS);
         int nfds = epoll_wait(epoll_fd, events.data(), MAX_EVENTS, -1);
         if (nfds < 0) {
             perror("epoll_wait");
@@ -164,7 +167,7 @@ void epoll_loop(int server_fd, ThreadPool& pool) {
                 }
             } else {
                 // Handle data from client
-                pool.enqueue([fd = events[n].data.fd] { handle_connection(fd); });
+                pool.enqueue([fd = events[n].data.fd, epoll_fd] { handle_connection(fd, epoll_fd); });
             }
         }
     }
