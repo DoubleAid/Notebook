@@ -173,7 +173,6 @@ void epoll_loop(int server_fd, ThreadPool& pool) {
     }
 }
 
-
 int main() {
     int port = 8080;
     int server_fd = create_server_socket(port);

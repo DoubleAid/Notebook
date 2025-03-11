@@ -30,7 +30,7 @@ void epoll_loop(int server_fd, ThreadPool& pool) {
     if (epoll_fd < 0) {
         exit(EXIT_FAILURE);
     }
-
-    struct epoll
-    
+    struct epoll_event event;
+    event.data.fd = server_fd;
+    return;
 }
