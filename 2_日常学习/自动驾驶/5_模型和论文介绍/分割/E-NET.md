@@ -104,6 +104,10 @@ class Bottleneck(nn.Module):
             self.maxpool = None
             self.upsample = None
         
+        # 包含三个卷积层，卷积核分别是 1 3 1
+        # 分别是 投影层，主卷积层 和 扩展层
+
+        # dilation 的目标是用0填充卷积核，扩大卷积的感受野
         self.conv1 = nn.Conv2d(in_channels, inter_channels, kernel_size=1, bias=False)
         self.conv2 = nn.Conv2d(inter_channels, inter_channels, kernel_size=3, padding=dilation, dilation=dilation, bias=False)
         self.conv3 = nn.Conv2d(inter_channels, out_channels, kernel_size=1, bias=False)
@@ -126,14 +130,42 @@ class Bottleneck(nn.Module):
         x = self.conv3(x)
         x = self.bn3(x)
         
+        # 如果是上采样，就通过 dropout 丢弃一部分数据，防止过拟合
         if self.upsample:
             x = self.dropout(x)
         
+        # 在深度学习中，尤其是在残差网络（ResNet）及其变体中，residual（残差）和 x（经过一系列卷积操作后的特征图）通常需要具有相同的形状，以便可以直接相加。
+        # 如果它们的形状不同，就需要对 residual 进行调整，使其与 x 的形状匹配。
+
         if residual.shape != x.shape:
             residual = nn.functional.adaptive_avg_pool2d(residual, x.shape[2:])
         
+        # 这种操作是残差网络的核心思想之一，即通过跳跃连接（skip connection）将输入特征直接添加到输出特征中，
+        # 有助于缓解深层网络中的梯度消失问题，并增强网络的特征学习能力。
         return self.relu(x + residual)
 ```
+
+在ENet（一种用于实时语义分割的深度神经网络架构）中，Bottleneck（瓶颈模块） 是网络中的一种关键构建模块，其设计灵感来源于ResNet中的残差模块。Bottleneck模块的主要作用是减少参数数量，同时保留关键的特征信息，从而提高网络的计算效率。
+
+### Bottleneck模块的结构
+
+ENet中的Bottleneck模块由以下部分组成：
+
++ 1×1投影层：用于减少输入特征的维度，从而降低计算复杂度。
++ 主卷积层：可以是普通的卷积层、不对称卷积层或空洞卷积层，具体取决于应用场景。
++ 1×1扩展层：用于增加特征的维度，以便与主分支的特征进行融合。
+
+在Bottleneck模块中，还会在每个卷积层之间插入批量归一化（Batch Normalization）和PReLU激活函数，以稳定训练过程并加速收敛。
+
+### 下采样与非下采样
+
++ 下采样Bottleneck：当需要进行下采样时，会在主分支上添加一个最大池化层，并将第一个1×1投影层替换为一个2×2的卷积层，步长为2，以实现降采样。
++ 非下采样Bottleneck：在这种情况下，主分支直接传递输入特征，而辅线则通过三个卷积层（1×1投影、主卷积、1×1扩展）处理特征。
+
+### 优势
+
+通过这种设计，Bottleneck模块在减少参数数量的同时，能够有效地保留对语义分割任务至关重要的特征信息，从而使得ENet能够在保持高精度的同时实现快速的实时处理。
+总之，Bottleneck模块是ENet实现高效实时语义分割的关键组成部分，它通过减少参数和计算量，同时保留重要特征，显著提高了网络的性能。
 
 ```python
 class ENet(nn.Module):
