@@ -13,6 +13,8 @@ std::condition_variable 的主要功能包括：
 ## 2. 主要成员函数
 
 + wait：使线程进入等待状态，直到被通知或条件满足。
++ wait_for: 使线程进入等待状态，直到被通知或超时。
++ wait_until: 使线程进入等待状态，直到被通知或指定时间点。
 + notify_one：通知一个等待的线程。
 + notify_all：通知所有等待的线程。
 
