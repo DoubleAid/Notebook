@@ -38,7 +38,7 @@ public:
     }
 
     template <typename Func, typename... Args>
-    auto enqueue(Func&& func, Args&& args...) -> std::future<std::result_of<func(args...)>::type>
+    auto enqueue(Func&& func, Args&& args...) -> std::future<std::result_of<Func(Args...)>::type>
 
     void wait(int interval) {
         while (!terminate_) {
@@ -58,9 +58,9 @@ private:
 };
 
 template <typename Func, typename... Args>
-auto ThreadPool::enqueue(Func&& func, Args&& args...) -> std::future<std::result_of<func(args...)>::type> {
+auto ThreadPool::enqueue(Func&& func, Args&& args...) -> std::future<std::result_of<func(Args...)>::type> {
     using PackedTask = std::packaged_task<std::result_of<func(args...)>type()>;
-    auto task = std::make_shared<PackedTask>(std::bind(std::forward(func), std::forward(args)));
+    auto task = std::make_shared<PackedTask>(std::bind(std::forward<Func>(func), std::forward<Args>(args)...));
     {
         std::lock_guard lock(mutex_);
         jobs_.emplace([&]() {

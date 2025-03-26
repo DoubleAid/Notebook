@@ -25,8 +25,6 @@ Map Client对外提供三个接口：
 
 2、updatePosition： 输入一个物理位置，更新LRU Cache， 以该点所在tile为中心，n个tile为半径，将这部分tile数据加入LRU Cache。该步骤为异步加载。
 
-
-
 #### 配置文件
 ```shell
 client {
