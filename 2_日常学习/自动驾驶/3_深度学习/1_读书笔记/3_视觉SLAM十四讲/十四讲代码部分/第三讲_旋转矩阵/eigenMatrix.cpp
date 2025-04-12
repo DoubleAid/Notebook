@@ -50,5 +50,14 @@ using namespace std;
     // 应该通过显式转换, 将 float 类型转化成 double 类型
     Eigen::Matrix<double, 2, 1> result = matrix_23.cast<double>() * v_3d;
     
-    // 
+    // 一些矩阵运算
+    matrix_33 = Eigen::Matrix3d::Random();
+    cout << matrix_33 << endl << endl;
+
+    cout << matrix_33.transpose() << endl;      // 转置
+    cout << matrix_33.sum() << endl;            // 各元素求和
+    cout << matrix_33.trace() << endl;          // 矩阵的迹，即主对角线之和
+    cout << 10 * matrix_33 << endl;             // 数乘
+    cout << matrix_33.inverse() << endl;        // 逆
+    cout << matrix_33.determinant() << endl;    // 行列式
 }
