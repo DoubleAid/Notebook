@@ -59,8 +59,10 @@ package.json
 ```
 
 ### <font color="deepskyblue">Docker build</font>
+
 新建文件夹 `docker-demo` 保存上述的三个文件
-```
+
+```bash
 (base) guanggang.bian@G15-FNTZ3G3-U:~/Private/Code/docker-demo$ ls -l
 total 12
 -rw-r--r-- 1 guanggang.bian domain users  81 4月  14 10:29 Dockerfile
@@ -69,7 +71,8 @@ total 12
 ```
 
 在该文件夹下执行 build 命令
-```
+
+```bash
 docker build .
 ...此处省略...
 Removing intermediate container e05fca8d7dc2
@@ -84,9 +87,11 @@ Removing intermediate container 3e9c20ac1eff
  ---> ca63b53ee571
 Successfully built ca63b53ee571
 ```
+
 当出现 `Successfully built ca63b53ee571` 表示 docker image
 接着可以输入 `docker image ls` 指令查看刚刚建立好的 image
-```
+
+```bash
 docker image ls
 REPOSITORY                                                         TAG          IMAGE ID       CREATED          SIZE
 <none>                                                             <none>       ca63b53ee571   10 minutes ago   665MB
@@ -96,7 +101,8 @@ REPOSITORY                                                         TAG          
 
 ## <font color="coral">在本地运行 containerized app</font>
 在打包好 Docker Image 之后， 就可以通过 docker指令 运行 docker container， 复制刚刚的 docker image ID， 输入指令
-```
+
+```bash
 $ sudo docker run -p 3000:3000 -it ca63b53ee571
 [sudo] password for guanggang.bian: 
 npm info it worked if it ends with ok
