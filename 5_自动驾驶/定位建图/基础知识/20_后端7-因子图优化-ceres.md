@@ -55,103 +55,6 @@ $$
 
 其中 $\sum ^{-1}$ 是协方差矩阵的逆矩阵, 作为各个因子的权重，称为信息矩阵
 
-#### 代码实现
-
-```cpp
-#include <ceres/ceres.h>
-#include <Eigen/Dense>
-#include <iostream>
-
-using namespace Eigen:
-
-// 定义先验误差
-struct PriorResidual {
-    PriorResidual(double x_prior, double y_prior, double sigmal)
-        : x_prior_(x_prior), y_prior_(y_prior), sigma_(sigmal) {}
-    
-    template <typename T>
-    bool operator()(const T* const pose, T* residual) const {
-        residual[0] = (pose[0] - T(x_prior_)) / T(sigma_);
-        residual[1] = (pose[1] - T(y_prior_)) / T(sigma_);
-        return true;
-    }
-private:
-    double x_prior_, y_prior_, sigma_;
-};
-
-// 定义观测残差 (不考虑运动方向)
-struct ObservationResidual {
-    ObservationResidual(double x_obs, double y_obs, double sigma) : x_obs_(x_obs), y_obs_(y_obs), sigma_(sigma) {}
-
-    template <typename T>
-    bool operator()(const T* const pose_i, const T* const pose_j, T* residual) const {
-        T dx = pose_j[0] - pose_i[0];
-        T dy = pose_j[1] - pose_i[1];
-        residual[0] = (dx - T(x_obs_)) / T(sigma_);
-        residual[1] = (dy - T(y_obs_)) / T(sigma_);
-        return true;
-    }
-private:
-    double x_obs_, y_obs_, sigma_;
-};
-
-// 定义里程计残差 (考虑协方差)
-struct OdometryResidual {
-    OdometryResidual(double x_odom, double y_odom, double sigma) : x_odom_(x_odom), y_odom_(y_odom), sigma_(sigma) {}
-
-    template <typename T>
-    bool operator()(const T* const pose_i, const T* const pose_j, T* residual) const {
-        residual[0] = (pose_j[0] - pose_i[0] - T(x_odom_)) / T(sigma_);
-        residual[1] = (pose_j[1] - pose_i[1] - T(y_odom_)) / T(sigma_);
-        return true;
-    }
-
-private:
-    double x_odom_, y_odom_, sigma_;
-};
-
-int main() {
-    // 初始化位姿
-    double y0[2] = {0.0, 0.0};
-    double y1[2] = {0.0, 3.0};
-    double y2[2] = {4.0, 3.0};
-
-    // 创建优化问题
-    ceres::Problem problem;
-
-    // 添加先验因子 (固定 y0)
-    ceres::CostFunction* prior_cost = new ceres::AutoDiffCostFunction<PriorResidual, 2, 2>(new PriorResidual(0.0, 0.0, 0.1));
-    problem.AddResidualBlock(prior_cost, nullptr, y0);
-
-    // 添加里程计因子
-    ceres::CostFunction* odom_cost1 = new ceres::AutoDiffCostFunction<OdometryResidual, 2, 2, 2>(new OdometryResidual(0.0, 3.0, 0.5));
-    problem.AddResidualBlock(odom_cost1, nullptr, y0, y1);
-
-    ceres::CostFunction* odom_cost2 = new ceres::AutoDiffCostFunction<OdometryResidual, 2, 2, 2>(new OdometryResidual(4.0, 0.0, 0.5));
-    problem.AddResidualBlock(odom_cost2, nullptr, y1, y2);
-
-    // 添加观测因子
-    ceres::CostFunction* observation_cost1 = new ceres::AutoDiffCostFunction<ObservationResidual, 2, 2, 2>(new ObservationResidual(0.2, -3.1, 0.3));
-    problem.AddResidualBlock(observation_cost1, nullptr, y0, y1);
-
-    ceres::CostFunction* observation_cost2 = new ceres::AutoDiffCostFunction<ObservationResidual, 2, 2, 2>(new ObservationResidual(4.1, -3.1, 0.3));
-
-    // 匹配并运行优化
-    ceres::Solver::Options options;
-    options.linear_solver_type = ceres::DENSE_QR;
-    options.minimizer_progress_to_stdout = true;
-    ceres::Solver::Summary summary;
-    ceres::Solve(options, &problem, &summary);
-
-    std::cout << summary.FullReport() << "\n";
-    std::cout << "Optimized y0: (" << y0[0] << ", " << y0[1] << ")\n";
-    std::cout << "Optimized y1: (" << y1[0] << ", " << y1[1] << ")\n";
-    std::cout << "Optimized y2: (" << y2[0] << ", " << y2[1] << ")\n";
-
-    return 0;
-}
-```
-
 #### 函数参数介绍
 
 `ceres::AutoDiffCostFunction<PriorResidual, 2, 2>(new PriorResidual(0.0, 0.0, 0.1));` 定义了观测点的移动，其中 `PriorResidual` 是观测点的先验误差，`ObservationResidual` 是观测点的观测误差，`OdometryResidual` 是里程计的误差。
@@ -159,7 +62,6 @@ int main() {
 + 第一个参数 CostFunctor： 用户自定义的残差计算类
 + 第二个参数 kNumResiduals: 残差的维度（即残差向量的长度）
 + 后续参数：各个参数块的维度，（每个参数块对应优化变量的一部分）
-
 
 `ceres::Solver::Options options;` 常见的选项包括线性求解器类型、最大迭代次数、最大时间、进度输出、梯度检查等。此外，还有关于收敛条件、参数块排序、线程数等设置。
 
