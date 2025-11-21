@@ -19,6 +19,7 @@ Cartographer 是 Google 开源的实时同步定位与建图（SLAM）系统，�
 与 LOAM/LIOSAM 的关键区别
 
 | 特性 | LOAM/LIOSAM | Cartographer |
+| ---- | ---- | ---- |
 | 匹配方法 | 特征点匹配 | 概率栅格地图匹配 |
 | 地图表示 | 点云/特征点 | 概率栅格子图 |
 | 优化框架 | 因子图/ICP | 位姿图+Ceres优化 |
