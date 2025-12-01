@@ -37,7 +37,7 @@ $$
 
 #### L2 缺点
 
-+ 对异常值极不鲁棒：异常值的误差 \(\epsilon\) 通常很大，平方后会被放大数倍，主导整个损失函数，导致优化结果向异常值偏移（例如 ICP 配准中，1 个误匹配点的误差可能掩盖 100 个正确匹配点的贡献）；
++ 对异常值极不鲁棒：异常值的误差 $\epsilon$ 通常很大，平方后会被放大数倍，主导整个损失函数，导致优化结果向异常值偏移（例如 ICP 配准中，1 个误匹配点的误差可能掩盖 100 个正确匹配点的贡献）；
 + 假设限制严格：仅适用于噪声服从高斯分布的场景，而 SLAM 中实际噪声（如动态物体、激光遮挡）多为非高斯分布。
 
 ### 2. Huber 核函数
@@ -122,7 +122,7 @@ $$
   $$
 + 当 $|r| > \delta$ (大误差)
   $$
-  \frac {d\rho} {dr} = \delta |r|
+  \frac {d\rho} {dr} = \delta |r| \\
   w_{huber(r)} = \frac {\delta} {r}
   $$
 
@@ -139,11 +139,11 @@ $$
 ### Cauchy 损失的权重更新
 
 $$
-\frac {d\rho} {de} = \frac {2\delta e} {\delta^2 + e^2} \\
-w_{cauchy(e)} = \frac {\delta^2} {\delta^2 + e^2}
+\frac {d\rho} {dr} = \frac {2\delta r} {\delta^2 + r^2} \\
+w_{cauchy(r)} = \frac {\delta^2} {\delta^2 + r^2}
 $$
 
-+ 当 $|e| \approx 0$（小误差）：$\rho_{\text{Cauchy}}(e) \approx 1$（权重≈1，惩罚小误差）；
-+ 当 $|e|$ 增大（大误差）：$\rho_{\text{Cauchy}}(e)$ 随 $e^2$ 增长而衰减，且衰减速度远快于 Huber（对数级衰减）；
-+ 当 $|e| \gg \delta$（极大误差）：$\rho_{\text{Cauchy}}(e) \approx \frac {\delta^2} {e^2}$（权重趋近于 0，几乎不惩罚异常值）。
++ 当 $|r| \approx 0$（小误差）：$\rho_{\text{Cauchy}}(e) \approx 1$（权重≈1，惩罚小误差）；
++ 当 $|r|$ 增大（大误差）：$\rho_{\text{Cauchy}}(e)$ 随 $e^2$ 增长而衰减，且衰减速度远快于 Huber（对数级衰减）；
++ 当 $|r| \gg \delta$（极大误差）：$\rho_{\text{Cauchy}}(e) \approx \frac {\delta^2} {e^2}$（权重趋近于 0，几乎不惩罚异常值）。
 + 物理意义：对异常值的惩罚强度衰减极快，即使存在大量大误差约束，也不会影响优化结果 —— 鲁棒性最强。
