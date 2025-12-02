@@ -1,17 +1,12 @@
 # Notebook 目录
 
-## <font color="skyblue">待定事项</font>
-
-1. ~~最小二乘法的求解方式和代码实现~~
-2. 特征点提取方式和区别
-    + ~~视觉特征点~~
-    + 激光特征点
-3. ~~点云配准方法~~
-4. ~~多传感器融合方法~~
-    + 时间同步和预积分等
-5. 激光SLAM流程
-
 ## <font color="skyblue">每日计划</font>
+
+### <font color="YellowGreen">12月2日</font>
+
+1. 标定方法 velo2cam 和 自研的标定工具
+2. 简历经历具体化
+3. Fast-Liosam1/2 代码阅读 和 区别
 
 ### <font color="YellowGreen">11月24日</font>
 
