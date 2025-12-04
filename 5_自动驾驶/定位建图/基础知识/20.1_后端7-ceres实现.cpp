@@ -91,7 +91,35 @@ public:
 
         // 残差计算： res = info^(1/2) * (观测 - 预测)
         const Vector2d res = obs_.uv - uv_pred;
-        res
+        residuals[0] = sqrt(obs_.info(0, 0)) * res.x();
+        residuals[1] = sqrt(obs_.info(1, 1)) * res.y();
+
+        // 雅可比计算 (可选，Ceres可自动数值微分，此处提供解析雅可比提升效率)
+        if (jacobians) {
+            const double inv_z = 1.0 / P_c.z();
+            const double inv_z2 = inv_z * inv_z;
+            const double fx = K_(0, 0), fy = K_(1, 1), cx = K_(0, 2), cy = K_(1, 2);
+
+            // 雅可比 d(res)/d(p) 和 d(res)/d(q)
+            Matrix2d sqrt_info = obs_.info.llt().matrixL();
+            Matrix<double, 2, 3> J_p;       // 分别是 d(res_u)/d(p) 和 d(res_v)/d(p)
+            Matrix<double, 2, 4> J_q;       // 分别是 d(res_u)/d(q) 和 d(res_v)/d(q)
+            // 因为 res = 观测uv - 预测uv，因为 观测量是常量，所以残差只和预测相关
+            // d(res)/d(p, q) = sqrt(info) * (- d(预测 uv)/d(p, q))
+            // d(Pc)/d(p): Pc = q*(P_w - p) = q* (delta P) ==> d(Pc)/d(p) = -R
+            // d(观测uv)/d(Pc): 预测uv = (1/Z)K(Pc), K为内参矩阵，设Pc = [xc, yc, zc]
+            //                  预测u = (fx*xc + cx*zc)/zc = fx(xc/zc) + cx, 预测v = (fy*yc + cy*zc)/zc = fx(xc/zc) + cx
+            //                  d(u)/d(xc) = fx/zc, d(u)/d(yc) = 0, d(u)/d(zc) = -(fx*xc)/(zc*zc)
+            // 整理一下          d(u)/d(Pc) = 1/zc [fx 0 -u+cx]， 因为 u = fx*xc/zc + cx
+            // 整个就可以写成     d(uv)/d(p) = d(uv)/d(Pc)*d(Pc)/d(p)
+            
+            // d(uv)/d(Pc)
+            Matrix<double, 2, 3> J_proj;
+            J_proj << fx * inv_z, 0, -fx*P_c.x()*inv_z2,
+                      0, fy * inv_z, -fy*P_c.y()*inv_z2;
+
+            // d(P_c)/d(p) = -q_rot
+        }
     }
 private:
     VisualObservation obs_;
