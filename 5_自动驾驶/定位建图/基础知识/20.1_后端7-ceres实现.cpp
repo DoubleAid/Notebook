@@ -3,9 +3,11 @@
 #include <Eigen/Geometry>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 using namespace Eigen;
 using namespace ceres;
+using namespace std;
 
 // -------------------------- 数据结构定义 ------------------------
 // 位姿状态：位置(x, y, z) + 姿态(四元数 w, x, y, z) + 速度(vx, vy, vz) + IMU零偏(bwx, bwy, bwz, bax, bay, baz)
@@ -118,8 +120,23 @@ public:
             J_proj << fx * inv_z, 0, -fx*P_c.x()*inv_z2,
                       0, fy * inv_z, -fy*P_c.y()*inv_z2;
 
-            // d(P_c)/d(p) = -q_rot
+            // d(P_c)/d(p) = -q_rot (q 的旋转部分)
+            const Matrix3d R = q.toRotationMatrix();
+            J_p = -sqrt_info * J_proj * R;
+
+            // d(P_c)/d(q) = R* \Delta P * 四元数导数（使用右乘模型）
+            const Vector3d P_w_minus_p = obs_.P_w - p;
+            Matrix<double, 3, 4> J_q_rot;
+            J_q_rot.block<3, 3>(0, 0) = -skew_symmetric(R * P_w_minus_p);
+            J_q_rot.block<3, 1>(0, 3) = Vector3d::Zero();
+            J_q = sqrt_info * J_proj * J_q_rot;
+
+            if (jacobians[0]) {
+                memccpy(jacobians[0], J_p.data(), sizeof(double)*6);
+                memccpy(jacobians[1], J_q.data(), sizeof(double)*8)
+            }
         }
+        return true;
     }
 private:
     VisualObservation obs_;
@@ -134,3 +151,90 @@ private:
         return mat;
     }
 };
+
+// 2. IMU 预积分残差 (15维残差： delta_p, delta_v, delta_q 各三维 + 零偏变化量 6 维)
+// 输入 ：前一帧位姿 7 维，前一帧速度+陀螺仪偏置+加速度计偏置9维，后一帧位姿 7 维，后一帧速度+陀螺仪偏置+加速度计偏置9维 
+class IMUPreintegrationError : public SizedCostFunction<15, 7, 9, 7, 9> {
+public:
+    IMUPreintegrationError(const IMUPreintegration& preintegration)
+        : preintegration_(preintegration) {}
+    
+    virtual bool Evaluate(double const* const* parameters,
+                          double* residuals,
+                          double** jacobians) const override {
+        const Vector3d      p_prev(&parameters[0][0]);
+        const Quaterniond   q_prev(&parameters[0][3]);
+        
+        const Vector3d      v_prev(&parameters[1][0]);
+        const Vector3d      ba_prev(&parameters[1][3]);
+        const Vector3d      bw_prev(&parameters[1][6]);
+
+        const Vector3d      p_curr(&parameters[2][0]);
+        const Quaterniond   q_curr(&parameters[2][3]);
+
+        const Vector3d      v_curr(&parameters[3][0]);
+        const Vector3d      ba_curr(&parameters[3][3]);
+        const Vector3d      bw_curr(&parameters[3][6]);
+
+        // 计算理论位姿增量: p_curr = q_prev * delta_p + p_prev
+        const Vector3d p_pred = q_prev * preintegration_.delta_p + p_prev;
+        const Vector3d v_pred = q_prev * preintegration_.delta_v + v_prev + preintegration_.gravity * preintegration_.dt;
+        Quaterniond q_pred = q_prev * preintegration_.delta_q;
+
+        // 零偏变化约束 (假设零偏缓慢变化, delta_b = b_curr - b_prev)
+        const Vector3d delta_b_w = bw_curr - bw_prev;
+        const Vector3d delta_b_a = ba_curr - ba_prev;
+
+        // 残差计算
+        residuals[0] = p_curr.x() - p_pred.x();
+        residuals[1] = p_curr.y() - p_pred.y();
+        residuals[2] = p_curr.z() - p_pred.z();
+        residuals[3] = v_curr.x() - v_pred.x();
+        residuals[4] = v_curr.y() - v_pred.y();
+        residuals[5] = v_curr.z() - v_pred.z();
+        const Quaterniond q_err = q_pred.inverse() * q_curr;
+        residuals[6] = 2 * q_err.x();
+        residuals[7] = 2 * q_err.y();
+        residuals[8] = 2 * q_err.z();
+        residuals[9] = delta_b_w.x();
+        residuals[10] = delta_b_w.y();
+        residuals[11] = delta_b_w.z();
+        residuals[12] = delta_b_a.x();
+        residuals[13] = delta_b_a.y();
+        residuals[14] = delta_b_a.z();
+        
+        // 残差加权 (基于预积分方案)
+        const Matrix<double, 15, 15> sqrt_info = preintegration_.cov.llt().matrixL().inverse();
+        Map<Vector15d> res_map(residuals);
+        res_map = sqrt_info * res_map;
+
+        // 雅可比矩阵计算 
+    }
+private:
+    IMUPreintegration preintegration_;
+};
+
+// 3. 轮速记残差（2维残差：线速度误差，角速度误差）
+class WheelOdometryError : public SizedCostFunction<2, 3, 4> {
+public:
+    WheelOdometryError(const WheelOdometryObservation &obs)
+        : obs_(obs) {}
+    virtual bool Evaluate(double const* const* parameters,
+                          double* residuals,
+                          double** jacobians) const override {
+        const Vector3d v(parameters[0][0], parameters[0][1], parameters[0][2]);
+        const Quaterniond q(parameters[1][0], parameters[1][1], parameters[1][2], parameters[1][3]);
+
+        // 轮速计测量的是机器人本体坐标系下的线速度和角速度
+        // 线速度：世界坐标系速度转换到本体坐标系 v_body = q.inverse() * v_world
+        const Vector3d v_body = q.inverse() * v;
+        const double v_pred = v_body.norm();
+        const double w_pred = 0;                // 简化： 角速度可通过姿态微分计算，此处假设直接观测
+
+        // 残差计算
+        const Vector2d res(obs_.v - v_pred, obs_.w - w_pred);
+        const Matrix2d sqrt_info = obs_.info.llt().matrixL()
+    }
+private:
+    WheelOdometryObservation obs_;
+}
