@@ -1,6 +1,13 @@
 # IMU预积分的原因和优化推导
 
-IMU 预积分：设计初衷是解决传统绝对积分的工程痛点，最终为后端优化提供精准、可高效更新的相对运动约束。 “核心原因→数学建模→积分推导→离散实现→雅可比与优化” 逐步展开，兼顾理论严谨性与工程落地逻辑。
+## 一句话回答
+
+IMU 预积分的核心逻辑可概括为：
+
+1. 动机：解决绝对积分的 “连锁更新” 和 “复用性差” 问题，适配后端实时优化；
+2. 核心：将绝对积分转化为 “相对增量积分”，消除绝对状态依赖，仅依赖 IMU 读数和偏置；
+3. 实现：通过中值积分完成离散化，通过雅可比递推支持偏置快速更新；
+4. 应用：输出相对运动约束，纳入因子图优化，与激光、视觉等传感器约束联合求解最优状态。
 
 ## 一、为什么需要 IMU 预积分？（核心原因）
 
@@ -10,7 +17,7 @@ IMU 预积分的核心原因是解决**多传感器时间异步、简化优化�
 2. 简化非线性优化：SLAM/VIO 的后端优化（如 BA）需频繁调整关键帧位姿，若每次调整都重新积分 IMU 数据，计算量极大。预积分将 IMU 数据与关键帧位姿解耦，仅需一次积分得到增量，后续优化时通过预积分的雅可比矩阵快速更新误差，大幅提升优化效率。
 3. 保留 IMU 误差信息：预积分过程中会同步计算积分结果的协方差矩阵和雅可比矩阵，量化 IMU 噪声（零偏、高斯噪声）对积分结果的影响，为传感器融合（如 ESKF、BA）提供可靠的误差估计，提升运动估计的精度和鲁棒性。
 
-### 1. 传统绝对积分的痛点：偏置优化导致 “连锁更新” 灾难
+### 1. 绝对积分的痛点：偏置优化导致 “连锁更新” 灾难
 
 IMU 读数存在零偏（陀螺偏置$\mathbf{b}_\omega$、加计偏置$\mathbf{b}_a$），且偏置是缓慢时变的。传统绝对积分的状态方程为：
 
@@ -22,9 +29,9 @@ $$
 \end{cases}
 $$
 
-可见，所有后续帧的绝对状态都依赖初始偏置估计。若后端优化修正了某一帧的偏置，则该帧之后的所有绝对状态都需要重新积分计算 —— 海量 IMU 数据重新积分，实时性完全无法保证。
+所有后续帧的绝对状态都依赖初始偏置估计。若后端优化修正了某一帧的偏置，则该帧之后的所有绝对状态都需要重新积分计算 —— 海量 IMU 数据重新积分，实时性完全无法保证。
 
-传统积分的结果是 “绝对状态”（世界系下的位姿、速度），依赖初始绝对位姿$\mathbf{q}_0, \mathbf{p}_0$。若后端优化调整了初始绝对位姿（如闭环检测修正全局位姿），则所有积分结果都需重新计算，无法直接复用。
+绝对积分是依赖初始绝对位姿$\mathbf{q}_0, \mathbf{p}_0$。若后端优化调整了初始绝对位姿（如闭环检测修正全局位姿），则所有积分结果都需重新计算，无法直接复用。
 
 ### 2. 预积分的核心解决思路
 
@@ -50,7 +57,8 @@ $$
 \begin{cases}
 \boldsymbol{\omega}(t) = \tilde{\boldsymbol{\omega}}(t) - \mathbf{b}_{\omega}(t) - \boldsymbol{\eta}_{\omega}(t) \\
 \mathbf{a}(t) = \tilde{\mathbf{a}}(t) - \mathbf{b}_{a}(t) - \boldsymbol{\eta}_{a}(t)
-\end{cases}$$
+\end{cases}
+$$
 
 + $\tilde{\boldsymbol{\omega}}, \tilde{\mathbf{a}}$：原始读数；$\boldsymbol{\eta}_{\omega}, \boldsymbol{\eta}_{a}$：高斯白噪声（方差$\sigma_\omega^2, \sigma_a^2$）；
 + 假设短时间内（k→k+1）偏置$\mathbf{b}_{\omega}, \mathbf{b}_a$为常数（缓慢时变特性）。
@@ -93,31 +101,29 @@ IMU 是离散采样（采样周期$\Delta t$），需将连续方程离散化。
 递推公式：
 
 $$
-\Delta\tilde{R}_{k,k+1} = \prod_{i=k}^{k+1-1} \text{Rodrigues}\left( (\omega_{t_i}^b - \mathbf{b}_\omega) \cdot \Delta t \right)
+\Delta\tilde{R}_{k,k+1} = \prod_{i=k}^{k+1} \text{Rodrigues}\left( (\omega_{t_i} - \mathbf{b}_\omega) \cdot \Delta t \right)
 $$
 
 ### 2. 离散化相对速度（$\Delta \mathbf{v}_{k+1}^k$）
 
 递推公式：
+
 $$
-\Delta \mathbf{v}_{i+1}^k = \Delta \mathbf{v}_i^k + \left( \frac{\Delta \mathbf{R}_i^k + \Delta \mathbf{R}_{i+1}^k}{2} \cdot \mathbf{a}_i^b - \mathbf{g}^b(k) \right) \cdot \Delta t
+\Delta \mathbf{v}_{i+1}^k = \Delta \mathbf{v}_i^k + \left( \frac{\Delta \mathbf{R}_i^k + \Delta \mathbf{R}_{i+1}^k}{2} \cdot \mathbf{a}_i - \mathbf{g} \right) \cdot \Delta t
 $$
 
 其中：
 
-+ $\mathbf{a}_i^b = \frac{\tilde{\mathbf{a}}_i^b + \tilde{\mathbf{a}}_{i+1}^b}{2} - \mathbf{b}_a$（中值去偏加速度）；
++ $\mathbf{a}_i = \frac{\tilde{\mathbf{a}}_i + \tilde{\mathbf{a}}_{i+1}}{2} - \mathbf{b}_a$（中值去偏加速度）；
 + $\Delta \mathbf{R}_i^k$是$\Delta \mathbf{q}_i^k$对应的旋转矩阵。
-
-最终 k→k+1 的相对速度：$\Delta \mathbf{v}_{k+1}^k = \Delta \mathbf{v}_m^k$。
 
 ### 3. 离散化相对位置（$\Delta \mathbf{p}_{k+1}^k$）
 
 递推公式：
-$$
-\Delta \mathbf{p}_{i+1}^k = \Delta \mathbf{p}_i^k + \Delta \mathbf{v}_i^k \cdot \Delta t + \frac{1}{2} \left( \frac{\Delta \mathbf{R}_i^k + \Delta \mathbf{R}_{i+1}^k}{2} \cdot \mathbf{a}_i^b - \mathbf{g}^b(k) \right) \cdot \Delta t^2
-$$
 
-最终 k→k+1 的相对位置：$\Delta \mathbf{p}_{k+1}^k = \Delta \mathbf{p}_m^k$。
+$$
+\Delta \mathbf{p}_{i+1}^k = \Delta \mathbf{p}_i^k + \Delta \mathbf{v}_i^k \cdot \Delta t + \frac{1}{2} \left( \frac{\Delta \mathbf{R}_i^k + \Delta \mathbf{R}_{i+1}^k}{2} \cdot \mathbf{a}_i - \mathbf{g} \right) \cdot \Delta t^2
+$$
 
 ## 五、雅可比矩阵与偏置更新（优化核心）
 
