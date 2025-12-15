@@ -4,11 +4,13 @@ IMU 预积分：设计初衷是解决传统绝对积分的工程痛点，最终�
 
 ## 一、为什么需要 IMU 预积分？（核心原因）
 
-IMU 的核心价值是提供高频（100~1000Hz）角速度和加速度数据，直接使用 “绝对积分” 会面临两个致命问题：
+IMU 预积分的核心原因是解决**多传感器时间异步、简化优化计算、提升融合精度**，具体可概括为 3 点：
 
-### 1. 传统绝对积分的痛点
+1. 对齐多传感器时间戳：IMU 采样率（100-2000Hz）远高于相机 / 激光雷达（10-30Hz），预积分可将相邻关键帧（如相机帧）之间的 IMU 数据积分成一个 “等效变换增量”（位置、速度、姿态），避免逐帧处理高频 IMU 数据，实现与低帧率传感器的时间同步。
+2. 简化非线性优化：SLAM/VIO 的后端优化（如 BA）需频繁调整关键帧位姿，若每次调整都重新积分 IMU 数据，计算量极大。预积分将 IMU 数据与关键帧位姿解耦，仅需一次积分得到增量，后续优化时通过预积分的雅可比矩阵快速更新误差，大幅提升优化效率。
+3. 保留 IMU 误差信息：预积分过程中会同步计算积分结果的协方差矩阵和雅可比矩阵，量化 IMU 噪声（零偏、高斯噪声）对积分结果的影响，为传感器融合（如 ESKF、BA）提供可靠的误差估计，提升运动估计的精度和鲁棒性。
 
-#### （1）偏置优化导致 “连锁更新” 灾难
+### 1. 传统绝对积分的痛点：偏置优化导致 “连锁更新” 灾难
 
 IMU 读数存在零偏（陀螺偏置$\mathbf{b}_\omega$、加计偏置$\mathbf{b}_a$），且偏置是缓慢时变的。传统绝对积分的状态方程为：
 
@@ -20,9 +22,7 @@ $$
 \end{cases}
 $$
 
-可见，所有后续帧的绝对状态（$\mathbf{q}, \mathbf{v}, \mathbf{p}$）都依赖初始偏置估计。若后端优化修正了某一帧的偏置，则该帧之后的所有绝对状态都需要重新积分计算 —— 海量 IMU 数据重新积分，实时性完全无法保证。
-
-#### （2）绝对状态依赖导致 “复用性差”
+可见，所有后续帧的绝对状态都依赖初始偏置估计。若后端优化修正了某一帧的偏置，则该帧之后的所有绝对状态都需要重新积分计算 —— 海量 IMU 数据重新积分，实时性完全无法保证。
 
 传统积分的结果是 “绝对状态”（世界系下的位姿、速度），依赖初始绝对位姿$\mathbf{q}_0, \mathbf{p}_0$。若后端优化调整了初始绝对位姿（如闭环检测修正全局位姿），则所有积分结果都需重新计算，无法直接复用。
 
@@ -48,11 +48,11 @@ IMU 原始读数含噪声和偏置，真实角速度 / 加速度为：
 
 $$
 \begin{cases}
-\boldsymbol{\omega}^b(t) = \tilde{\boldsymbol{\omega}}^b(t) - \mathbf{b}_{\omega}(t) - \boldsymbol{\eta}_{\omega}(t) \\
-\mathbf{a}^b(t) = \tilde{\mathbf{a}}^b(t) - \mathbf{b}_{a}(t) - \boldsymbol{\eta}_{a}(t)
+\boldsymbol{\omega}(t) = \tilde{\boldsymbol{\omega}}(t) - \mathbf{b}_{\omega}(t) - \boldsymbol{\eta}_{\omega}(t) \\
+\mathbf{a}(t) = \tilde{\mathbf{a}}(t) - \mathbf{b}_{a}(t) - \boldsymbol{\eta}_{a}(t)
 \end{cases}$$
 
-+ $\tilde{\boldsymbol{\omega}}^b, \tilde{\mathbf{a}}^b$：原始读数；$\boldsymbol{\eta}_{\omega}, \boldsymbol{\eta}_{a}$：高斯白噪声（方差$\sigma_\omega^2, \sigma_a^2$）；
++ $\tilde{\boldsymbol{\omega}}, \tilde{\mathbf{a}}$：原始读数；$\boldsymbol{\eta}_{\omega}, \boldsymbol{\eta}_{a}$：高斯白噪声（方差$\sigma_\omega^2, \sigma_a^2$）；
 + 假设短时间内（k→k+1）偏置$\mathbf{b}_{\omega}, \mathbf{b}_a$为常数（缓慢时变特性）。
 
 ## 三、连续时间预积分推导（核心理论）
