@@ -25,6 +25,15 @@ dependencies:
     - Flask-Testing
 ```
 
+## 删除环境
+
+```bash
+conda remove -n <env-name> --all
+```
+
++ **-n**: 指定环境名称（name 的缩写）；
++ **--all**: 删除该环境下的所有包和环境本身（必须加，否则只删包不删环境）。
+
 ## 查看环境列表
 
 ```bash
